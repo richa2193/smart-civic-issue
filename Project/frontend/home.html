@@ -9,6 +9,11 @@
         background: linear-gradient(135deg, #F4EEFF 0%, #EDE7FF 50%, #F7F8FF 100%);
     }
     
+    /* Dark Mode Hero Background */
+    .dark .hero-bg {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    }
+    
     /* Reveal Animation Classes */
     .reveal {
         opacity: 0;
@@ -270,15 +275,15 @@
             
             // Load markers from backend
             const complaints = [
-                {% for c in public_complaints %}
+                /* {% for c in public_complaints %} */
                     {
-                        lat: {{ c.latitude|default:"0" }},
-                        lng: {{ c.longitude|default:"0" }},
+                        lat: Number('{{ c.latitude|default:"0" }}'),
+                        lng: Number('{{ c.longitude|default:"0" }}'),
                         title: "{{ c.title|escapejs }}",
-                        status: "{{ c.status }}",
-                        category: "{{ c.category }}"
+                        status: "{{ c.status|escapejs }}",
+                        category: "{{ c.category|escapejs }}"
                     },
-                {% endfor %}
+                /* {% endfor %} */
             ];
             
             // Bounds to fit all markers

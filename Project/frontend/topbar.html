@@ -23,8 +23,8 @@
         
         <!-- Dark Mode Toggle -->
         <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-50 me-1">
-            <i class="fa-solid fa-moon dark-icon hidden"></i>
-            <i class="fa-solid fa-sun light-icon"></i>
+            <i class="fa-solid fa-moon block dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:block"></i>
         </button>
         
         <!-- Notifications Dropdown -->
@@ -35,14 +35,14 @@
             </button>
             
             <div x-show="notifyOpen" x-transition.opacity class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50" style="display: none;">
-                <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <h3 class="font-bold text-slate-800">Notifications</h3>
                     <button class="text-xs font-bold text-primary hover:text-indigo-700 bg-white px-2 py-1 rounded shadow-sm border border-slate-200">Mark all read</button>
                 </div>
                 <div class="max-h-80 overflow-y-auto divide-y divide-slate-50">
                     
                     <!-- Unread Notification (System) -->
-                    <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors bg-indigo-50/30">
+                    <div class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors bg-indigo-50/30 dark:bg-indigo-900/20">
                         <div class="flex gap-3">
                             <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <i class="fa-solid fa-server text-xs"></i>
@@ -56,7 +56,7 @@
                     </div>
                     
                     <!-- Read Notification (Assignment) -->
-                    <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors">
+                    <div class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
                         <div class="flex gap-3">
                             <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <i class="fa-solid fa-file-signature text-xs"></i>
@@ -69,7 +69,7 @@
                     </div>
                     
                     <!-- Read Notification (Citizen Rating) -->
-                    <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors">
+                    <div class="px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-700/50 cursor-pointer transition-colors">
                         <div class="flex gap-3">
                             <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <i class="fa-solid fa-star text-xs"></i>
@@ -82,7 +82,7 @@
                     </div>
                     
                 </div>
-                <div class="px-4 py-2 text-center border-t border-slate-100 bg-slate-50/50 mt-1">
+                <div class="px-4 py-2 text-center border-t border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 mt-1">
                     <a href="#" class="text-xs font-bold text-slate-500 hover:text-primary transition-colors uppercase tracking-wider">View all activity</a>
                 </div>
             </div>
@@ -100,10 +100,10 @@
                     <p class="text-sm font-medium text-slate-900 truncate">{{ user.email }}</p>
                     <p class="text-xs text-slate-500 truncate">{{ user.role }}</p>
                 </div>
-                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-user me-2"></i> My Profile</a>
-                <a href="{% url 'home' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-globe me-2"></i> Public Portal</a>
+                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-user me-2"></i> My Profile</a>
+                <a href="{% url 'home' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-globe me-2"></i> Public Portal</a>
                 <div class="border-t border-slate-100 my-1"></div>
-                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout</a>
+                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout</a>
             </div>
         </div>
     </div>

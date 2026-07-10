@@ -5,6 +5,7 @@
     <div>
         <h2 class="text-2xl font-bold text-slate-800">Performance Reports</h2>
         <p class="text-slate-500 mt-1">Analyze your department's resolution performance.</p>
+    </div>
     <div class="flex gap-2">
         <button class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2">
             <i class="fa-solid fa-download text-primary"></i> Download Latest
@@ -49,7 +50,6 @@
                     <p class="text-xs text-amber-300 mt-1"><i class="fa-solid fa-arrow-trend-down me-1"></i> -1.5h from last week</p>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </div>
@@ -115,9 +115,9 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Parse data passed from view
     const reportData = [
-        {% for data in report_data %}
-            { status: '{{ data.status|escapejs }}', count: {{ data.count }} },
-        {% endfor %}
+        /* {% for data in report_data %} */
+            { status: '{{ data.status|escapejs }}', count: Number('{{ data.count }}') },
+        /* {% endfor %} */
     ];
     
     const labels = reportData.map(d => d.status);

@@ -45,7 +45,7 @@
     
     <!-- Category Chart -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[450px]">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50">
             <h3 class="font-bold text-slate-800"><i class="fa-solid fa-chart-bar text-primary me-2"></i> Issues by Category</h3>
         </div>
         <div class="p-6 flex-1 flex flex-col justify-center">
@@ -57,14 +57,13 @@
     
     <!-- Status Chart -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[450px]">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50">
             <h3 class="font-bold text-slate-800"><i class="fa-solid fa-chart-pie text-emerald-500 me-2"></i> Global Resolution Status</h3>
         </div>
         <div class="p-6 flex-1 flex flex-col justify-center">
             <div class="relative h-full w-full">
                 <canvas id="statusChart"></canvas>
             </div>
-        </div>
         </div>
     </div>
     
@@ -73,7 +72,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
     <!-- Radar Chart: Department Efficiency -->
     <div class="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[400px]">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50">
             <h3 class="font-bold text-slate-800"><i class="fa-solid fa-spider text-indigo-500 me-2"></i> SLA Adherence</h3>
         </div>
         <div class="p-6 flex-1 flex flex-col justify-center">
@@ -85,11 +84,11 @@
     
     <!-- Heatmap Mockup -->
     <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[400px]">
-        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+        <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
             <h3 class="font-bold text-slate-800"><i class="fa-solid fa-map-location-dot text-red-500 me-2"></i> Geographic Hotspots</h3>
             <span class="text-xs font-bold text-slate-400 uppercase">Live Map</span>
         </div>
-        <div class="relative flex-1 bg-slate-100 overflow-hidden">
+        <div class="relative flex-1 bg-slate-100 dark:bg-slate-900 overflow-hidden">
             <!-- Mock Map Background -->
             <div class="absolute inset-0 opacity-40" style="background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 20px 20px;"></div>
             
@@ -103,7 +102,7 @@
             <div class="absolute top-1/2 right-1/4 w-24 h-24 bg-emerald-500/20 rounded-full blur-2xl"></div>
             
             <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div class="bg-white/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200 shadow-sm text-center pointer-events-auto">
+                <div class="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm text-center pointer-events-auto">
                     <p class="font-bold text-slate-800">Downtown Area</p>
                     <p class="text-xs text-slate-500">Highest concentration of Sanitation issues</p>
                 </div>
@@ -126,9 +125,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // Status Chart (Doughnut)
     const ctxStatus = document.getElementById('statusChart').getContext('2d');
     const statusData = [
-        {% for data in status_data %}
-            { status: '{{ data.status|escapejs }}', count: {{ data.count }} },
-        {% endfor %}
+        /* {% for data in status_data %} */
+            { status: '{{ data.status|escapejs }}', count: Number('{{ data.count }}') },
+        /* {% endfor %} */
     ];
     
     // Map colors based on status
@@ -166,9 +165,9 @@ document.addEventListener("DOMContentLoaded", function() {
     // Category Chart (Bar)
     const ctxCategory = document.getElementById('categoryChart').getContext('2d');
     const categoryDataRaw = [
-        {% for data in category_data %}
-            { category: '{{ data.category|escapejs }}', count: {{ data.count }} },
-        {% endfor %}
+        /* {% for data in category_data %} */
+            { category: '{{ data.category|escapejs }}', count: Number('{{ data.count }}') },
+        /* {% endfor %} */
     ];
     
     new Chart(ctxCategory, {

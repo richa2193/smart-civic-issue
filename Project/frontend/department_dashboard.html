@@ -38,7 +38,7 @@
             </div>
         </div>
         <div class="relative z-10 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-            <div class="bg-amber-500 h-1.5 rounded-full" style="width: {% widthratio stats.pending stats.total 100 %}%"></div>
+            <div class="bg-amber-500 h-1.5 rounded-full" style="width: 0%" x-init="$el.style.width = '{% widthratio stats.pending stats.total 100 %}%'"></div>
         </div>
     </div>
     
@@ -54,7 +54,7 @@
             </div>
         </div>
         <div class="relative z-10 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {% widthratio stats.resolved stats.total 100 %}%"></div>
+            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: 0%" x-init="$el.style.width = '{% widthratio stats.resolved stats.total 100 %}%'"></div>
         </div>
     </div>
 

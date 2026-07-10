@@ -57,6 +57,14 @@
     <link rel="stylesheet" href="/static/css/style.css">
     
     {% block extra_css %}{% endblock %}
+    <script>
+        // Theme initialization to prevent FOUC
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
 
@@ -139,26 +147,15 @@
             if (isDark) {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
-                document.querySelectorAll('.dark-icon').forEach(el => el.classList.remove('hidden'));
-                document.querySelectorAll('.light-icon').forEach(el => el.classList.add('hidden'));
             } else {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
-                document.querySelectorAll('.dark-icon').forEach(el => el.classList.add('hidden'));
-                document.querySelectorAll('.light-icon').forEach(el => el.classList.remove('hidden'));
             }
         }
         
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.contains('dark');
             setDarkMode(!isDark);
-        }
-        
-        // Check system preference or local storage on load
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            setDarkMode(true);
-        } else {
-            setDarkMode(false);
         }
     </script>
     

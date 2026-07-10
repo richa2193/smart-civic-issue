@@ -4,7 +4,7 @@ charset-normalizer==3.4.9
 Django==5.0.6
 googlemaps==4.10.0
 idna==3.18
-pillow==10.3.0
+pillow==11.3.0
 python-dotenv==1.0.1
 requests==2.32.3
 sqlparse==0.5.5

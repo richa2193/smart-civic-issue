@@ -24,8 +24,8 @@
         
         <!-- Dark Mode Toggle (Desktop) -->
         <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-50">
-            <i class="fa-solid fa-moon dark-icon hidden"></i>
-            <i class="fa-solid fa-sun light-icon"></i>
+            <i class="fa-solid fa-moon block dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:block"></i>
         </button>
 
         {% if user.is_authenticated %}
@@ -54,8 +54,8 @@
       <div class="flex items-center md:hidden gap-4">
         <!-- Dark Mode Toggle (Mobile) -->
         <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none">
-            <i class="fa-solid fa-moon dark-icon hidden text-lg"></i>
-            <i class="fa-solid fa-sun light-icon text-lg"></i>
+            <i class="fa-solid fa-moon block dark:hidden text-lg"></i>
+            <i class="fa-solid fa-sun hidden dark:block text-lg"></i>
         </button>
         
         <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-slate-500 hover:text-slate-700 focus:outline-none p-2">
