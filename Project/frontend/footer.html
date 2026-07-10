@@ -1,0 +1,76 @@
+<footer class="bg-white border-t border-slate-200 mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+      
+      <!-- Brand -->
+      <div class="lg:col-span-1">
+        <a href="{% url 'home' %}" class="flex items-center gap-2 mb-4">
+            <div class="w-8 h-8 bg-indigo-50 text-primary rounded-lg flex items-center justify-center text-lg">
+                <i class="fa-solid fa-city"></i>
+            </div>
+            <span class="font-black text-xl tracking-tight text-slate-800">
+                Smart<span class="text-primary">Civic</span>
+            </span>
+        </a>
+        <p class="text-sm text-slate-500 leading-relaxed mb-6">
+            Your one-stop solution for reporting and resolving civic issues efficiently. Empowering citizens, enabling departments.
+        </p>
+        <div class="flex gap-3">
+            <a href="#" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-primary transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+            <a href="#" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-primary transition-colors"><i class="fa-brands fa-twitter"></i></a>
+            <a href="#" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-primary transition-colors"><i class="fa-brands fa-instagram"></i></a>
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h4 class="font-bold text-slate-800 mb-4">Quick Links</h4>
+        <ul class="space-y-3">
+            <li><a href="{% url 'home' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Home</a></li>
+            <li><a href="{% url 'about' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">About Us</a></li>
+            <li><a href="{% url 'contact' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Contact</a></li>
+        </ul>
+      </div>
+      
+      <!-- Portals -->
+      <div>
+        <h4 class="font-bold text-slate-800 mb-4">Portals</h4>
+        <ul class="space-y-3">
+            <li><a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Citizen Login</a></li>
+            <li><a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Officer Portal</a></li>
+            <li><a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Admin Dashboard</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <h4 class="font-bold text-slate-800 mb-4">Contact</h4>
+        <ul class="space-y-4">
+            <li class="flex items-start gap-3">
+                <i class="fa-solid fa-location-dot text-primary mt-1"></i>
+                <span class="text-sm text-slate-500">123 Civic Lane, Smart City, 10001</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fa-solid fa-envelope text-primary mt-1"></i>
+                <span class="text-sm text-slate-500">support@smartcivic.com</span>
+            </li>
+            <li class="flex items-start gap-3">
+                <i class="fa-solid fa-phone text-primary mt-1"></i>
+                <span class="text-sm text-slate-500">1-800-SMART-CV</span>
+            </li>
+        </ul>
+      </div>
+
+    </div>
+    
+    <div class="border-t border-slate-100 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="text-sm text-slate-400">
+        &copy; {% now "Y" %} Smart Civic. All rights reserved.
+      </p>
+      <div class="flex gap-4">
+        <a href="#" class="text-sm text-slate-400 hover:text-slate-600">Privacy Policy</a>
+        <a href="#" class="text-sm text-slate-400 hover:text-slate-600">Terms of Service</a>
+      </div>
+    </div>
+  </div>
+</footer>

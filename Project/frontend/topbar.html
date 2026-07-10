@@ -1,0 +1,110 @@
+<!-- Topbar (Tailwind + Alpine.js) -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 h-16 flex items-center px-4 sm:px-6 shadow-sm">
+    
+    <!-- Mobile Menu Button -->
+    <button @click="sidebarOpen = true" class="lg:hidden text-slate-500 hover:text-slate-700 focus:outline-none me-4">
+        <i class="fa-solid fa-bars text-xl"></i>
+    </button>
+    
+    <!-- Global Search (Visual Only for now) -->
+    <div class="flex-1 flex">
+        <form class="w-full max-w-md hidden md:flex items-center">
+            <div class="relative w-full">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i class="fa-solid fa-search text-slate-400"></i>
+                </div>
+                <input type="text" class="bg-slate-100 border-none text-slate-900 text-sm rounded-lg focus:ring-2 focus:ring-indigo-500 block w-full pl-10 p-2.5 transition-all" placeholder="Search complaints, users, or keywords...">
+            </div>
+        </form>
+    </div>
+    
+    <!-- Right Nav Actions -->
+    <div class="flex items-center gap-4 ms-auto">
+        
+        <!-- Dark Mode Toggle -->
+        <button onclick="toggleDarkMode()" class="text-slate-400 hover:text-indigo-500 transition-colors focus:outline-none flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-50 me-1">
+            <i class="fa-solid fa-moon dark-icon hidden"></i>
+            <i class="fa-solid fa-sun light-icon"></i>
+        </button>
+        
+        <!-- Notifications Dropdown -->
+        <div x-data="{ notifyOpen: false }" class="relative">
+            <button @click="notifyOpen = !notifyOpen" @click.outside="notifyOpen = false" class="relative p-2 text-slate-500 hover:text-indigo-600 transition-colors rounded-full hover:bg-slate-100 focus:outline-none">
+                <i class="fa-solid fa-bell text-xl"></i>
+                <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 border-2 border-white rounded-full"></span>
+            </button>
+            
+            <div x-show="notifyOpen" x-transition.opacity class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-100 py-2 z-50" style="display: none;">
+                <div class="px-4 py-3 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                    <h3 class="font-bold text-slate-800">Notifications</h3>
+                    <button class="text-xs font-bold text-primary hover:text-indigo-700 bg-white px-2 py-1 rounded shadow-sm border border-slate-200">Mark all read</button>
+                </div>
+                <div class="max-h-80 overflow-y-auto divide-y divide-slate-50">
+                    
+                    <!-- Unread Notification (System) -->
+                    <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors bg-indigo-50/30">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-server text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-800 leading-tight"><span class="font-bold">System Maintenance</span> scheduled for tonight at 2:00 AM.</p>
+                                <p class="text-[10px] font-bold text-primary mt-1 uppercase tracking-wider">Just now</p>
+                            </div>
+                            <div class="w-2 h-2 rounded-full bg-primary mt-1 flex-shrink-0"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Read Notification (Assignment) -->
+                    <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-file-signature text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-600 leading-tight">Ticket <span class="font-bold text-slate-800">#0142</span> has been assigned to your department.</p>
+                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">2 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Read Notification (Citizen Rating) -->
+                    <div class="px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors">
+                        <div class="flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-star text-xs"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-slate-600 leading-tight">A citizen rated your resolution on <span class="font-bold text-slate-800">#0138</span>.</p>
+                                <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="px-4 py-2 text-center border-t border-slate-100 bg-slate-50/50 mt-1">
+                    <a href="#" class="text-xs font-bold text-slate-500 hover:text-primary transition-colors uppercase tracking-wider">View all activity</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Dropdown -->
+        <div x-data="{ userOpen: false }" class="relative">
+            <button @click="userOpen = !userOpen" @click.outside="userOpen = false" class="flex items-center gap-2 focus:outline-none">
+                <img src="https://ui-avatars.com/api/?name={{ user.email|urlencode }}&background=6c5ce7&color=fff" alt="User" class="w-9 h-9 rounded-full shadow-sm ring-2 ring-white">
+                <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+            </button>
+            
+            <div x-show="userOpen" x-transition.opacity class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 z-50" style="display: none;">
+                <div class="px-4 py-3 border-b border-slate-100">
+                    <p class="text-sm font-medium text-slate-900 truncate">{{ user.email }}</p>
+                    <p class="text-xs text-slate-500 truncate">{{ user.role }}</p>
+                </div>
+                <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-user me-2"></i> My Profile</a>
+                <a href="{% url 'home' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors"><i class="fa-solid fa-globe me-2"></i> Public Portal</a>
+                <div class="border-t border-slate-100 my-1"></div>
+                <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout</a>
+            </div>
+        </div>
+    </div>
+</header>

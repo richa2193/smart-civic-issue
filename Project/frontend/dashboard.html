@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-slate-800">Citizen Dashboard</h2>
+        <p class="text-slate-500 mt-1">Welcome back, {{ user.email }}. Here is an overview of your civic issues.</p>
+    </div>
+    <a href="{% url 'report_issue' %}" class="inline-flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm font-medium">
+        <i class="fa-solid fa-plus me-2"></i> Report New Issue
+    </a>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden group">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-primary/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-start justify-between relative z-10 mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Total Complaints</p>
+                <h3 class="text-3xl font-extrabold text-slate-800">{{ stats.total }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-primary text-xl shadow-inner">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-primary h-1.5 rounded-full" style="width: 100%"></div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden group">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-start justify-between relative z-10 mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Pending</p>
+                <h3 class="text-3xl font-extrabold text-slate-800">{{ stats.pending }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 text-xl shadow-inner">
+                <i class="fa-solid fa-hourglass-half"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-amber-500 h-1.5 rounded-full" style="width: {% widthratio stats.pending stats.total 100 %}%"></div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between hover:shadow-md transition-all hover:-translate-y-1 relative overflow-hidden group">
+        <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-start justify-between relative z-10 mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Resolved</p>
+                <h3 class="text-3xl font-extrabold text-slate-800">{{ stats.resolved }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-500 text-xl shadow-inner">
+                <i class="fa-solid fa-check-double"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {% widthratio stats.resolved stats.total 100 %}%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Recent Complaints Table -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-bold text-slate-800">Recent Complaints</h3>
+                <a href="{% url 'my_complaints' %}" class="text-sm text-primary font-medium hover:underline">View All</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-100">
+                            <th class="px-6 py-3 font-medium">Issue</th>
+                            <th class="px-6 py-3 font-medium">Category</th>
+                            <th class="px-6 py-3 font-medium">Date</th>
+                            <th class="px-6 py-3 font-medium">Status</th>
+                            <th class="px-6 py-3 font-medium text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for complaint in complaints %}
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4">
+                                <p class="font-semibold text-slate-800">{{ complaint.title }}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                                    {{ complaint.category }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-500">
+                                {{ complaint.created_at|date:"M d, Y" }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ complaint.status }}
+                                    </span>
+                                {% elif complaint.status == 'In Progress' %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> {{ complaint.status }}
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> {{ complaint.status }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <a href="{% url 'complaint_detail' complaint.id %}" class="inline-flex items-center justify-center px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 hover:text-primary transition-colors shadow-sm">
+                                    Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-slate-500">
+                                <div class="flex flex-col items-center justify-center">
+                                    <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-3">
+                                        <i class="fa-solid fa-inbox text-2xl text-slate-300"></i>
+                                    </div>
+                                    <p>You haven't reported any issues yet.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions & Timeline -->
+    <div class="lg:col-span-1 space-y-6">
+        <!-- Quick Actions Panel -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="font-bold text-slate-800 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{% url 'report_issue' %}" class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-primary/30 hover:bg-indigo-50 transition-colors group text-center">
+                    <i class="fa-solid fa-pen-to-square text-primary text-xl mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs font-bold text-slate-700">New Issue</span>
+                </a>
+                <a href="{% url 'community_dashboard' %}" class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-emerald-500/30 hover:bg-emerald-50 transition-colors group text-center">
+                    <i class="fa-solid fa-map-location-dot text-emerald-500 text-xl mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs font-bold text-slate-700">View Map</span>
+                </a>
+                <a href="{% url 'profile' %}" class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-amber-500/30 hover:bg-amber-50 transition-colors group text-center">
+                    <i class="fa-solid fa-user-gear text-amber-500 text-xl mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs font-bold text-slate-700">Profile</span>
+                </a>
+                <a href="{% url 'my_complaints' %}" class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-blue-500/30 hover:bg-blue-50 transition-colors group text-center">
+                    <i class="fa-solid fa-clock-rotate-left text-blue-500 text-xl mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs font-bold text-slate-700">History</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Interactive Timeline -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h3 class="font-bold text-slate-800 mb-4">Recent Activity Timeline</h3>
+            <div class="space-y-0 relative">
+                <div class="absolute top-2 bottom-2 left-[9px] w-0.5 bg-slate-100"></div>
+                {% if complaints %}
+                    {% for c in complaints|slice:":4" %}
+                    <div class="flex gap-4 relative py-3">
+                        <div class="relative flex flex-col items-center shrink-0">
+                            {% if c.status == 'Resolved' %}
+                                <div class="w-5 h-5 bg-emerald-500 rounded-full ring-4 ring-emerald-50 z-10 flex items-center justify-center"><i class="fa-solid fa-check text-[10px] text-white"></i></div>
+                            {% elif c.status == 'In Progress' %}
+                                <div class="w-5 h-5 bg-blue-500 rounded-full ring-4 ring-blue-50 z-10 flex items-center justify-center"><i class="fa-solid fa-spinner text-[10px] text-white"></i></div>
+                            {% else %}
+                                <div class="w-5 h-5 bg-amber-500 rounded-full ring-4 ring-amber-50 z-10 flex items-center justify-center"><i class="fa-solid fa-file-lines text-[10px] text-white"></i></div>
+                            {% endif %}
+                        </div>
+                        <div class="pb-1">
+                            <p class="text-sm font-bold text-slate-800 line-clamp-1">{{ c.title }}</p>
+                            <p class="text-xs font-medium text-slate-500 mt-0.5">
+                                {% if c.status == 'Resolved' %}Resolved{% else %}Reported{% endif %} &bull; {{ c.created_at|timesince }} ago
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-sm text-slate-500 text-center py-4">No recent activity.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

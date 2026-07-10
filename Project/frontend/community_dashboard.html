@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+
+{% block wrapper_overflow %}overflow-hidden{% endblock %}
+{% block main_classes %}p-0 flex flex-col h-full{% endblock %}
+{% block container_classes %}w-full h-full flex-1 flex{% endblock %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+    /* Ensure the map takes 100% height of its parent */
+    #community-map {
+        height: 100%;
+        width: 100%;
+        z-index: 10;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col lg:flex-row w-full h-full overflow-hidden relative">
+    
+    <!-- LEFT: Full Screen Map -->
+    <div class="flex-1 relative h-[50vh] lg:h-full order-2 lg:order-1 border-t lg:border-t-0 lg:border-r border-slate-200 dark:border-slate-800">
+        <div id="community-map"></div>
+        
+        <!-- Floating Info Overlay on Map -->
+        <div class="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 max-w-sm hidden md:block">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-1"><i class="fa-solid fa-globe text-primary me-2"></i> Civic Transparency Map</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Live tracker of civic issues reported across the city. Red pins indicate pending issues, blue are in progress, and green are resolved.</p>
+        </div>
+    </div>
+    
+    <!-- RIGHT: Scrolling Sidebar Panel -->
+    <div class="w-full lg:w-[450px] xl:w-[500px] h-full flex flex-col bg-slate-50 dark:bg-slate-950 order-1 lg:order-2 overflow-y-auto custom-scrollbar shadow-inner relative z-20">
+        
+        <div class="p-6 space-y-8">
+            <!-- Mobile Header (Visible only on small screens) -->
+            <div class="md:hidden">
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white"><i class="fa-solid fa-globe text-primary me-2"></i> Community Map</h2>
+            </div>
+            
+            <!-- Live KPI Counters -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm text-center transform transition-transform hover:-translate-y-1 duration-300">
+                    <p class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Resolved Today</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <p class="text-4xl font-extrabold text-slate-900 dark:text-white" x-data="{ count: 0 }" x-init="let t = 142; let c = 0; let s = Math.ceil(t / 20); let i = setInterval(() => { c += s; if(c >= t){ count = t; clearInterval(i); } else { count = c; } }, 40);" x-text="count">0</p>
+                        <i class="fa-solid fa-arrow-trend-up text-green-500"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm text-center transform transition-transform hover:-translate-y-1 duration-300">
+                    <p class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Resolution Rate</p>
+                    <p class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ resolution_rate }}%</p>
+                </div>
+            </div>
+            
+            <!-- Category Chart -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-bold text-slate-800 dark:text-white mb-4 text-sm uppercase tracking-wide">Trending Issues</h3>
+                <div class="relative h-48 w-full">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="h-px w-full bg-slate-200 dark:bg-slate-800 my-2"></div>
+            
+            <!-- Public Feed -->
+            <div>
+                <h3 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> Live Issue Feed
+                </h3>
+                
+                <div class="space-y-4">
+                    {% for complaint in complaints %}
+                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 transition-colors group">
+                        
+                        <!-- Header: Category & Status -->
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-md">
+                                {{ complaint.category }}
+                            </span>
+                            
+                            {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                                <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-md border border-emerald-500/20"><i class="fa-solid fa-check me-1"></i> Resolved</span>
+                            {% elif complaint.status == 'In Progress' %}
+                                <span class="px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-md border border-blue-500/20"><i class="fa-solid fa-spinner me-1"></i> In Progress</span>
+                            {% else %}
+                                <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-md border border-amber-500/20">{{ complaint.status }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Content -->
+                        <h4 class="font-bold text-slate-900 dark:text-white mb-1.5 line-clamp-1">{{ complaint.title }}</h4>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-2">{{ complaint.description }}</p>
+                        
+                        <!-- Map Location Context -->
+                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-4 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                            <i class="fa-solid fa-location-dot text-slate-400"></i>
+                            <span class="line-clamp-1 flex-1">{{ complaint.address|default:"Location hidden" }}</span>
+                        </div>
+                        
+                        <!-- Footer Actions -->
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <span class="text-xs font-medium text-slate-400 flex items-center gap-1.5">
+                                <i class="fa-regular fa-clock"></i> {{ complaint.created_at|timesince }} ago
+                            </span>
+                            
+                            <div class="flex gap-2">
+                                <button class="w-7 h-7 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors" title="Share" onclick="navigator.clipboard.writeText(window.location.origin + '/complaint/{{ complaint.id }}'); Toastify({text: 'Link copied!', duration: 2000, style: {background: '#6c5ce7'}}).showToast();">
+                                    <i class="fa-solid fa-share-nodes text-[10px]"></i>
+                                </button>
+                                <button class="upvote-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-bold transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-id="{{ complaint.id }}">
+                                    <i class="fa-solid fa-arrow-up"></i>
+                                    <span class="upvote-count">{{ complaint.votes.count }}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="py-12 text-center text-slate-500">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <i class="fa-solid fa-inbox text-2xl text-slate-300 dark:text-slate-600"></i>
+                        </div>
+                        <p class="text-sm">No issues have been reported yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="pb-10 text-center text-xs text-slate-400">
+                End of Live Feed
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- JSON Data for JS -->
+<script type="application/json" id="complaints-data">
+[
+    {% for c in complaints %}
+    {
+        "lat": "{{ c.latitude|default:'0' }}",
+        "lng": "{{ c.longitude|default:'0' }}",
+        "title": "{{ c.title|escapejs }}",
+        "status": "{{ c.status|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+<script type="application/json" id="category-data">
+[
+    {% for cat in category_data %}
+    {
+        "category": "{{ cat.category|escapejs }}",
+        "count": {{ cat.count }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Upvote Logic
+    const upvoteBtns = document.querySelectorAll('.upvote-btn');
+    const isAuthenticated = "{{ user.is_authenticated }}" === "True";
+    
+    upvoteBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (!isAuthenticated) {
+                window.location.href = "{% url 'login' %}";
+                return;
+            }
+            
+            const complaintId = this.getAttribute('data-id');
+            const countSpan = this.querySelector('.upvote-count');
+            
+            this.classList.add('opacity-50', 'pointer-events-none');
+            
+            fetch(`/complaints/${complaintId}/upvote/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    countSpan.textContent = data.upvotes;
+                    if (data.action === 'voted') {
+                        this.classList.remove('text-slate-600', 'border-slate-200', 'hover:bg-slate-50', 'dark:text-slate-300', 'dark:border-slate-700', 'dark:hover:bg-slate-800');
+                        this.classList.add('text-primary', 'bg-primary/10', 'border-primary/20', 'dark:bg-primary/20');
+                    } else {
+                        this.classList.add('text-slate-600', 'border-slate-200', 'hover:bg-slate-50', 'dark:text-slate-300', 'dark:border-slate-700', 'dark:hover:bg-slate-800');
+                        this.classList.remove('text-primary', 'bg-primary/10', 'border-primary/20', 'dark:bg-primary/20');
+                    }
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => {
+                this.classList.remove('opacity-50', 'pointer-events-none');
+            });
+        });
+    });
+
+    // 2. Initialize Community Map
+    const geoapifyKey = "{{ geoapify_key }}";
+    if (document.getElementById('community-map')) {
+        const map = L.map('community-map', {zoomControl: false}).setView([23.0225, 72.5714], 12);
+        
+        // Add Zoom Control to Bottom Right so it doesn't overlap with our floating widget
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        
+        // Theme-responsive map tiles (using light theme mapping for better readability but can adapt)
+        L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${geoapifyKey}`, {
+            attribution: 'Powered by Geoapify',
+            maxZoom: 20
+        }).addTo(map);
+        
+        let complaints = [];
+        try {
+            const rawData = JSON.parse(document.getElementById('complaints-data').textContent);
+            complaints = rawData.map(c => ({
+                ...c,
+                lat: parseFloat(c.lat) || 0,
+                lng: parseFloat(c.lng) || 0
+            }));
+        } catch(e) {
+            console.error("Error parsing complaints data", e);
+        }
+        const bounds = [];
+        complaints.forEach(c => {
+            if(c.lat && c.lng && c.lat !== 0) {
+                let color = '#ef4444'; // Red (Pending)
+                if(c.status === 'Resolved' || c.status === 'Closed') color = '#10b981'; // Green
+                if(c.status === 'Assigned' || c.status === 'In Progress') color = '#3b82f6'; // Blue
+                
+                const markerHtmlStyles = `
+                  background-color: ${color};
+                  width: 1.25rem;
+                  height: 1.25rem;
+                  display: block;
+                  left: -0.625rem;
+                  top: -0.625rem;
+                  position: relative;
+                  border-radius: 2rem 2rem 0;
+                  transform: rotate(45deg);
+                  border: 2px solid #FFFFFF;
+                  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+                  transition: transform 0.2s, box-shadow 0.2s;
+                `;
+                
+                const customIcon = L.divIcon({
+                  className: "custom-pin group",
+                  iconAnchor: [0, 20],
+                  popupAnchor: [0, -20],
+                  html: `<span style="${markerHtmlStyles}" onmouseover="this.style.transform='rotate(45deg) scale(1.2) '; this.style.boxShadow='0 6px 12px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='rotate(45deg) scale(1)'; this.style.boxShadow='0 4px 6px -1px rgba(0,0,0,0.3)'"></span>`
+                });
+                
+                L.marker([c.lat, c.lng], {icon: customIcon})
+                 .addTo(map)
+                 .bindPopup(`<strong class="font-sans text-sm">${c.title}</strong><br><span class="text-xs text-slate-500">${c.status}</span>`);
+                 
+                bounds.push([c.lat, c.lng]);
+            }
+        });
+        
+        if(bounds.length > 0) {
+            map.fitBounds(bounds, {padding: [50, 50]});
+        }
+        
+        // Invalidate size on window resize so map fills correctly
+        window.addEventListener('resize', function() {
+            setTimeout(() => { map.invalidateSize(); }, 100);
+        });
+    }
+
+    // 3. Initialize Chart.js
+    const ctx = document.getElementById('categoryChart');
+    if (ctx) {
+        const isDark = document.documentElement.classList.contains('dark');
+        const textColor = isDark ? '#cbd5e1' : '#64748b';
+        
+        let chartLabels = [];
+        let chartData = [];
+        try {
+            const catData = JSON.parse(document.getElementById('category-data').textContent);
+            chartLabels = catData.map(c => c.category);
+            chartData = catData.map(c => c.count);
+        } catch(e) {
+            console.error("Error parsing category data", e);
+        }
+        
+        new Chart(ctx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    data: chartData,
+                    backgroundColor: [
+                        '#6c5ce7', '#a29bfe', '#00cec9', '#fdcb6e', '#ff7675'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: textColor,
+                            font: { family: "'Inter', sans-serif", size: 11 },
+                            usePointStyle: true,
+                            boxWidth: 8
+                        }
+                    }
+                },
+                cutout: '75%',
+                layout: {
+                    padding: 0
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

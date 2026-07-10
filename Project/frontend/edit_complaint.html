@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<style>
+    #map {
+        height: 100%;
+        min-height: 400px;
+        width: 100%;
+        z-index: 10;
+        border-radius: 0.75rem;
+    }
+    
+    /* Tailwind Django Form Styles */
+    .tailwind-forms input:not([type="file"]), .tailwind-forms select, .tailwind-forms textarea {
+        width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        background-color: #f8fafc;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+    .tailwind-forms input:focus, .tailwind-forms select:focus, .tailwind-forms textarea:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        background-color: #fff;
+    }
+    .tailwind-forms input[type="file"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px dashed #cbd5e1;
+        border-radius: 0.5rem;
+        background: #f8fafc;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center gap-3">
+    <a href="javascript:history.back()" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-primary hover:bg-slate-50 transition-colors shadow-sm">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="text-2xl font-bold text-slate-800">Edit Issue Report</h2>
+        <p class="text-slate-500 mt-1">Update the details of your civic issue report.</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto min-h-[600px]">
+    
+    <!-- Left Column: Form -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+        <div class="p-6 md:p-8">
+            <form method="POST" enctype="multipart/form-data" class="space-y-5">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Issue Title <span class="text-red-500">*</span></label>
+                    <div class="tailwind-forms">
+                        {{ form.title }}
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Category <span class="text-red-500">*</span></label>
+                        <div class="tailwind-forms">
+                            {{ form.category }}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Update Photo Evidence</label>
+                        <div class="tailwind-forms">
+                            {{ form.image }}
+                        </div>
+                        {% if complaint.image %}
+                            <div class="mt-2 text-xs text-slate-500">
+                                Current photo: <a href="{{ complaint.image.url }}" target="_blank" class="text-primary hover:underline">View</a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Description <span class="text-red-500">*</span></label>
+                    <div class="tailwind-forms">
+                        {{ form.description }}
+                    </div>
+                </div>
+                
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Address</label>
+                    <div class="tailwind-forms">
+                        {{ form.address }}
+                    </div>
+                </div>
+                
+                <!-- Hidden Coordinates -->
+                {{ form.latitude }}
+                {{ form.longitude }}
+                
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all">
+                    Save Changes
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Right Column: Map -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden relative flex flex-col min-h-[400px]">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 class="font-bold text-slate-800"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> Update Location Pin</h3>
+        </div>
+        
+        <div class="relative flex-1">
+            <div id="map"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<!-- Map JS -->
+<script src="/static/js/map.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const geoapifyKey = "{{ geoapify_key }}";
+        
+        const initialLat = parseFloat("{{ complaint.latitude|stringformat:'f'|default:'0' }}") || null;
+        const initialLng = parseFloat("{{ complaint.longitude|stringformat:'f'|default:'0' }}") || null;
+        
+        initLeafletMap('map', geoapifyKey, initialLat, initialLng, true);
+    });
+</script>
+{% endblock %}

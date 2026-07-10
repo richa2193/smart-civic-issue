@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-12 md:py-20 text-center max-w-4xl mx-auto">
+    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">About Smart Civic</h1>
+    <p class="text-xl text-slate-600 mb-16 leading-relaxed">
+        Our mission is to bridge the gap between citizens and government departments, ensuring quick and transparent resolution of civic issues through modern technology.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute -right-4 -bottom-4 text-indigo-50 text-7xl transform group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="w-16 h-16 bg-indigo-50 text-primary rounded-2xl flex items-center justify-center text-3xl mb-6 relative z-10">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <h4 class="text-xl font-bold text-slate-800 mb-3 relative z-10">For Citizens</h4>
+            <p class="text-slate-600 relative z-10 leading-relaxed">
+                Report problems easily, attach photos, pinpoint exact locations on interactive maps, and track progress until resolution.
+            </p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute -right-4 -bottom-4 text-emerald-50 text-7xl transform group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-building"></i>
+            </div>
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-3xl mb-6 relative z-10">
+                <i class="fa-solid fa-building"></i>
+            </div>
+            <h4 class="text-xl font-bold text-slate-800 mb-3 relative z-10">For Departments</h4>
+            <p class="text-slate-600 relative z-10 leading-relaxed">
+                Receive auto-assigned complaints, manage workflow intelligently, update statuses efficiently, and never miss an SLA.
+            </p>
+        </div>
+
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow relative overflow-hidden group">
+            <div class="absolute -right-4 -bottom-4 text-amber-50 text-7xl transform group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-3xl mb-6 relative z-10">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h4 class="text-xl font-bold text-slate-800 mb-3 relative z-10">For Admins</h4>
+            <p class="text-slate-600 relative z-10 leading-relaxed">
+                Monitor overall performance, analyze data through beautiful interactive dashboards, and ensure civic accountability.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

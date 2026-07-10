@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
+    <div class="shrink-0">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Department Dashboard</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Welcome Officer {{ user.email }}. Here is the current workload for your department.</p>
+    </div>
+</div>
+
+<!-- Workload Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-blue-50 dark:bg-blue-900/20 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10 flex justify-between items-start mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Total Assigned</p>
+                <h3 class="text-4xl font-extrabold text-slate-800 dark:text-white">{{ stats.total }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-list-check"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-blue-500 h-1.5 rounded-full" style="width: 100%"></div>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-amber-50 dark:bg-amber-900/20 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10 flex justify-between items-start mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Pending Action</p>
+                <h3 class="text-4xl font-extrabold text-amber-500 dark:text-amber-400">{{ stats.pending }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-amber-500 h-1.5 rounded-full" style="width: {% widthratio stats.pending stats.total 100 %}%"></div>
+        </div>
+    </div>
+    
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-emerald-50 dark:bg-emerald-900/20 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10 flex justify-between items-start mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Resolved</p>
+                <h3 class="text-4xl font-extrabold text-emerald-500 dark:text-emerald-400">{{ stats.resolved }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-check-double"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {% widthratio stats.resolved stats.total 100 %}%"></div>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 flex flex-col justify-between hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50 dark:bg-indigo-900/20 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="relative z-10 flex justify-between items-start mb-4">
+            <div>
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Avg Resolution</p>
+                <h3 class="text-4xl font-extrabold text-indigo-500 dark:text-indigo-400">48<span class="text-xl">h</span></h3>
+            </div>
+            <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center text-xl shadow-inner">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+        </div>
+        <div class="relative z-10 w-full bg-slate-100 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
+            <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 85%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Recent Complaints Queue -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                <h3 class="font-bold text-slate-800 dark:text-white">Action Queue (Recent)</h3>
+                <a href="{% url 'assigned_complaints' %}" class="text-sm text-primary font-medium hover:underline">View Full Queue</a>
+            </div>
+            
+            <div class="divide-y divide-slate-100 dark:divide-slate-700">
+                {% for complaint in complaints %}
+                <div class="p-6 hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 mb-2 border border-slate-200 dark:border-slate-600">
+                                {{ complaint.category }}
+                            </span>
+                            <h4 class="text-lg font-bold text-slate-900 dark:text-white">{{ complaint.title }}</h4>
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        <div class="flex flex-col items-end gap-2">
+                            {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ complaint.status }}
+                                </span>
+                            {% elif complaint.status == 'In Progress' %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> {{ complaint.status }}
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> {{ complaint.status }}
+                                </span>
+                            {% endif %}
+                            
+                            <!-- Priority Mockup -->
+                            {% if forloop.counter <= 2 and complaint.status != 'Resolved' %}
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 uppercase"><i class="fa-solid fa-bolt me-1"></i> High Priority</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">{{ complaint.description }}</p>
+                    
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
+                            <span title="Reported By"><i class="fa-solid fa-user text-slate-400 me-1"></i> {{ complaint.user.full_name|default:complaint.user.email }}</span>
+                            <span><i class="fa-regular fa-clock text-slate-400 me-1"></i> {{ complaint.created_at|date:"M d, H:i" }}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{% url 'complaint_detail' complaint.id %}" class="px-3 py-1.5 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-white rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors">Details</a>
+                            <a href="{% url 'update_status' complaint.id %}" class="px-3 py-1.5 bg-primary text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">Update Status</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="p-8 text-center text-slate-500 dark:text-slate-400">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-check-double text-2xl text-slate-300 dark:text-slate-600"></i>
+                    </div>
+                    <p>No complaints currently assigned to your department.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Panel -->
+    <div class="lg:col-span-1 space-y-6">
+        <!-- SLA Monitor (Mockup UI) -->
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 border-t-4 border-t-red-500">
+            <h3 class="font-bold text-slate-800 dark:text-white mb-4 flex justify-between items-center">
+                SLA Monitor <span class="text-xs bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-400 px-2 py-1 rounded font-medium">Critical</span>
+            </h3>
+            
+            {% if stats.pending > 0 %}
+            <div class="space-y-4" x-data="{ width: 10, time: '23:59:59' }" x-init="
+                setInterval(() => {
+                    let d = new Date();
+                    time = (23 - d.getHours()).toString().padStart(2, '0') + ':' + 
+                           (59 - d.getMinutes()).toString().padStart(2, '0') + ':' + 
+                           (59 - d.getSeconds()).toString().padStart(2, '0');
+                }, 1000);
+                setTimeout(() => width = 85, 500);
+            ">
+                <div class="p-3 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 rounded-xl relative overflow-hidden">
+                    <div class="absolute -right-2 -top-2 text-red-200 dark:text-red-900 opacity-20">
+                        <i class="fa-solid fa-stopwatch text-6xl"></i>
+                    </div>
+                    <div class="flex justify-between items-center mb-2 relative z-10">
+                        <span class="text-xs font-bold text-red-800 dark:text-red-400">Breaching in <span x-text="time"></span></span>
+                        <span class="text-xs font-bold bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 px-2 py-0.5 rounded shadow-sm border border-red-100 dark:border-red-900/30">3 issues</span>
+                    </div>
+                    <div class="w-full bg-red-200 dark:bg-red-900/50 rounded-full h-2 relative z-10">
+                        <div class="bg-red-500 h-2 rounded-full transition-all duration-1000 ease-out" :style="'width: ' + width + '%'"></div>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium"><i class="fa-solid fa-circle-info text-slate-400"></i> Service Level Agreement requires response within 48 hours of reporting.</p>
+            </div>
+            {% else %}
+            <p class="text-sm text-slate-500 dark:text-slate-400 text-center py-4">All SLAs met! Good job.</p>
+            {% endif %}
+        </div>
+        
+        <!-- Department Bulletin (Mockup UI) -->
+        <div class="bg-indigo-50 dark:bg-slate-800 border border-indigo-100 dark:border-slate-700 rounded-2xl shadow-sm p-6 relative overflow-hidden transition-colors">
+            <i class="fa-solid fa-bullhorn absolute -right-4 -bottom-4 text-7xl text-indigo-200 dark:text-slate-700 opacity-30"></i>
+            <h3 class="font-bold text-indigo-900 dark:text-white mb-2 relative z-10">Department Memo</h3>
+            <p class="text-sm text-indigo-800 dark:text-slate-300 mb-4 relative z-10">Ensure all resolved complaints have a final photograph attached before closing the ticket.</p>
+            <span class="text-xs font-medium text-indigo-500 dark:text-slate-400 relative z-10">Posted by Admin</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

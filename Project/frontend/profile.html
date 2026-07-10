@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    /* Tailwind Django Form Styles */
+    .tailwind-forms input, .tailwind-forms select, .tailwind-forms textarea {
+        width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        background-color: #f8fafc;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+    .tailwind-forms input:focus, .tailwind-forms select:focus, .tailwind-forms textarea:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        background-color: #fff;
+    }
+    .dark .tailwind-forms input, .dark .tailwind-forms select, .dark .tailwind-forms textarea {
+        background-color: #0f172a;
+        border-color: #334155;
+        color: #f8fafc;
+    }
+    .dark .tailwind-forms input:focus, .dark .tailwind-forms select:focus, .dark .tailwind-forms textarea:focus {
+        background-color: #1e293b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
+    <div class="shrink-0">
+        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">My Profile</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your personal information.</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="lg:col-span-1">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 text-center relative overflow-hidden group hover:shadow-md transition-shadow">
+            <div class="w-full h-24 bg-gradient-to-r from-primary to-indigo-500 absolute top-0 left-0 group-hover:scale-105 transition-transform duration-500"></div>
+            
+            <div class="w-24 h-24 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white dark:border-slate-800 shadow-md relative z-10 text-3xl font-bold text-primary">
+                {{ user.full_name|default:user.email|make_list|first|upper }}
+            </div>
+            
+            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-1 relative z-10">{{ user.full_name|default:"Citizen" }}</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 relative z-10">{{ user.email }}</p>
+            
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30 uppercase tracking-wider relative z-10">
+                {{ user.role }}
+            </span>
+            
+            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 text-left relative z-10">
+                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Account Information</p>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 dark:text-slate-400">Member Since:</span>
+                        <span class="font-medium text-slate-800 dark:text-slate-200">{{ user.date_joined|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="lg:col-span-2">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+                <h3 class="font-bold text-slate-800 dark:text-white"><i class="fa-solid fa-user-pen text-primary me-2"></i> Update Profile</h3>
+            </div>
+            
+            <div class="p-6 md:p-8">
+                <form method="POST" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                        <div class="tailwind-forms">
+                            {{ form.full_name }}
+                        </div>
+                        {% if form.full_name.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.full_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+                        <div class="tailwind-forms">
+                            {{ form.email }}
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">This email is used for login and notifications.</p>
+                        {% if form.email.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Phone Number (Optional)</label>
+                        <div class="tailwind-forms">
+                            {{ form.phone }}
+                        </div>
+                        {% if form.phone.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
+                        <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Officer Work History (Mockup) -->
+        {% if user.role == 'Department Officer' %}
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden mt-8">
+            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 dark:text-white"><i class="fa-solid fa-briefcase text-primary me-2"></i> Recent Resolutions</h3>
+                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md border border-emerald-100 dark:border-emerald-800/30">Top 10% Officer</span>
+            </div>
+            <div class="p-6 md:p-8">
+                <div class="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 space-y-8">
+                    
+                    <!-- Timeline Item 1 -->
+                    <div class="relative pl-6">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 ring-4 ring-emerald-50 dark:ring-emerald-900/30"></div>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Resolved: Massive Pothole on Sector 9 Road</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Today at 10:45 AM &bull; <span class="text-indigo-600 dark:text-indigo-400 font-medium">Ticket #0142</span></p>
+                        <div class="mt-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-md bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                                <i class="fa-solid fa-image text-slate-400 dark:text-slate-500"></i>
+                            </div>
+                            <div class="text-xs text-slate-600 dark:text-slate-400">
+                                <p class="font-bold dark:text-slate-300">Work Proof Uploaded</p>
+                                <p>SLA Target Met: <span class="text-emerald-600 dark:text-emerald-400">Yes (+4 hrs ahead)</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Item 2 -->
+                    <div class="relative pl-6">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 ring-4 ring-emerald-50 dark:ring-emerald-900/30"></div>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Resolved: Broken Streetlight near Central Park</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Yesterday at 4:20 PM &bull; <span class="text-indigo-600 dark:text-indigo-400 font-medium">Ticket #0138</span></p>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30 text-amber-800 dark:text-amber-400"><i class="fa-solid fa-star text-amber-500 me-1"></i> Citizen Rating: 5/5</p>
+                    </div>
+                    
+                    <!-- Timeline Item 3 -->
+                    <div class="relative pl-6">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 ring-4 ring-emerald-50 dark:ring-emerald-900/30"></div>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Resolved: Clogged Drainage in Market Area</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Jul 08, 2026 at 9:15 AM &bull; <span class="text-indigo-600 dark:text-indigo-400 font-medium">Ticket #0129</span></p>
+                    </div>
+                    
+                </div>
+                
+                <div class="mt-6 text-center">
+                    <a href="{% url 'assigned_complaints' %}" class="inline-block text-sm font-bold text-primary hover:text-indigo-700 transition-colors">View All History &rarr;</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
