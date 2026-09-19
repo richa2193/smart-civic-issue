@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="CivicSaathi is a modern intelligent platform connecting citizens with municipal departments to report potholes, broken streetlights, or sanitation issues and track their resolution in real-time.">
+    <meta name="keywords" content="civicsaathi, civic issues, report potholes, municipal departments, city management">
+    <meta property="og:title" content="CivicSaathi Issue Reporting">
+    <meta property="og:description" content="Report and track civic issues in your city in real-time.">
+    <meta property="og:type" content="website">
+    
+    <!-- Resource Hints for Performance -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/civicsaathi-icon.svg' %}">
+    
+    <title>{% block title %}CivicSaathi — Report. Resolve. Improve.{% endblock %}</title>
+    
+    <!-- Tailwind CSS (via CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0b3d66', // Navy Blue
+                        secondary: '#8b0000', // Maroon
+                        dark: '#1e293b',
+                        light: '#f8fafc',
+                        card: '#ffffff'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom Scrollbars & Theme overrides are now in style.css -->
+    
+    <!-- Alpine.js for interactivity (Dropdowns, Sidebar) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <!-- Toastify for Notifications -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <!-- Google Fonts: Inter & Merriweather -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS (Legacy fallback) -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
+
+    {% if user.is_authenticated and request.resolver_match.url_name not in 'home about contact login register verify_otp forgot_password reset_password resend_otp' %}
+        <!-- SaaS Dashboard Layout -->
+        <div class="flex h-screen overflow-hidden">
+            {% include 'sidebar.html' %}
+            
+            <div class="relative flex flex-col flex-1 {% block wrapper_overflow %}overflow-y-auto{% endblock %} overflow-x-hidden">
+                {% include 'topbar.html' %}
+                
+                <main class="w-full grow {% block main_classes %}p-4 sm:p-6 lg:p-8 lg:pt-12 flex flex-col{% endblock %}">
+                    <div class="{% block container_classes %}w-full flex-1{% endblock %}">
+    {% else %}
+        <!-- Landing/Auth Layout -->
+        <div class="flex flex-col min-h-screen">
+            {% include 'navbar.html' %}
+            
+            <main class="grow">
+    {% endif %}
+
+                        {% block content %}{% endblock %}
+
+    {% if user.is_authenticated and request.resolver_match.url_name not in 'home about contact login register verify_otp forgot_password reset_password resend_otp' %}
+                    </div>
+                </main>
+            </div>
+        </div>
+    {% else %}
+            </main>
+            
+            {% include 'footer.html' %}
+        </div>
+    {% endif %}
+    
+    <!-- Django Messages (Toastify Integration) -->
+    <script defer type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script type="application/json" id="django-messages">
+        [
+            {% for message in messages %}
+            {
+                "text": "{{ message|escapejs }}",
+                "tags": "{{ message.tags|escapejs }}"
+            }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ]
+    </script>
+    <script defer>
+        document.addEventListener('DOMContentLoaded', function() {
+            const msgElement = document.getElementById('django-messages');
+            if (msgElement && msgElement.textContent.trim().length > 2) {
+                try {
+                    const messages = JSON.parse(msgElement.textContent);
+                    messages.forEach(msg => {
+                        let bgColor = "#10b981"; // default success
+                        if (msg.tags.includes('error')) bgColor = "#ef4444";
+                        else if (msg.tags.includes('warning')) bgColor = "#f59e0b";
+                        
+                        Toastify({
+                            text: msg.text,
+                            duration: 4000,
+                            gravity: "top", 
+                            position: "right",
+                            style: {
+                                background: bgColor,
+                                borderRadius: "8px",
+                                boxShadow: "0 4px 12px rgba(0,0,0,0.15)"
+                            }
+                        }).showToast();
+                    });
+                } catch (e) {
+                    console.error("Error parsing messages:", e);
+                }
+            }
+        });
+    </script>
+    
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

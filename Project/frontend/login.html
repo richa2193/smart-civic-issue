@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-140px)] py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-[430px] p-8 sm:p-10 bg-white rounded-3xl shadow-[0_10px_40px_rgba(108,92,231,0.08)] border border-slate-100 ">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
+            <p class="text-sm text-slate-500 ">Please sign in to your dashboard</p>
+        </div>
+        
+        <form method="POST" class="space-y-5">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email or Username</label>
+                <!-- Django form fields will be injected here. We can style them globally via base.html or style.css -->
+                <div class="tailwind-forms">
+                    {{ form.username }}
+                </div>
+                {% if form.username.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.username.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
+                    <a href="{% url 'forgot_password' %}" class="text-xs text-primary hover:text-indigo-700 :text-indigo-400 hover:underline">Forgot password?</a>
+                </div>
+                <div class="tailwind-forms">
+                    {{ form.password }}
+                </div>
+                {% if form.password.errors %}
+                <div class="text-red-500 text-xs mt-1">{{ form.password.errors }}</div>
+                {% endif %}
+            </div>
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            
+            <button type="submit" class="w-full h-[54px] rounded-sm bg-gradient-to-r from-primary to-indigo-600 text-white font-semibold shadow-lg shadow-primary/30 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 mt-2">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="text-center mt-8 text-sm text-slate-500 ">
+            New here?<br>
+            <a href="{% url 'register' %}" class="inline-block mt-1 font-bold text-primary hover:text-indigo-700 hover:underline transition-colors">Create account</a>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Style injected Django fields */
+.tailwind-forms input, .tailwind-forms select {
+    width: 100%;
+    height: 54px;
+    border-radius: 0.75rem;
+    border: 1.5px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    background-color: #f8fafc;
+    color: #1e293b;
+    transition: all 0.2s ease-in-out;
+}
+.dark .tailwind-forms input, .dark .tailwind-forms select {
+    background-color: #0f172a;
+    border-color: #334155;
+    color: #f8fafc;
+}
+.tailwind-forms input:focus, .tailwind-forms select:focus {
+    outline: none;
+    border-color: #6c5ce7;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+}
+.dark .tailwind-forms input:focus, .dark .tailwind-forms select:focus {
+    background-color: #1e293b;
+}
+</style>
+{% endblock %}

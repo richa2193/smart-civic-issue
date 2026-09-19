@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    /* Tailwind Django Form Styles */
+    .tailwind-forms input, .tailwind-forms textarea {
+        width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        background-color: #f8fafc;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+    .tailwind-forms input:focus, .tailwind-forms textarea:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        background-color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-12 flex items-center justify-center min-h-[calc(100vh-200px)]">
+    <div class="w-full max-w-4xl grid grid-cols-1 md:grid-cols-5 gap-8">
+        
+        <div class="md:col-span-2 space-y-8">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-900 mb-4">Contact Us</h1>
+                <p class="text-slate-600 leading-relaxed">
+                    Have questions about reporting an issue? Need technical support? Reach out to our team.
+                </p>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-indigo-50 text-primary rounded-full flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">Headquarters</h4>
+                        <p class="text-sm text-slate-600 mt-1">123 Civic Center Drive<br>Ahmedabad, Gujarat 380001</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-indigo-50 text-primary rounded-full flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">Email Us</h4>
+                        <p class="text-sm text-slate-600 mt-1">support@smartcivic.com<br>info@smartcivic.com</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 bg-indigo-50 text-primary rounded-full flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800">Call Us</h4>
+                        <p class="text-sm text-slate-600 mt-1">1-800-SMART-CV<br>Mon-Fri, 9am - 5pm</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="md:col-span-3">
+            <div class="bg-white rounded-sm shadow-sm border border-slate-100 p-8">
+                <form method="POST" class="space-y-5">
+                    {% csrf_token %}
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Full Name</label>
+                            <div class="tailwind-forms">
+                                <input type="text" required placeholder="John Doe">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
+                            <div class="tailwind-forms">
+                                <input type="email" required placeholder="john@example.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Subject</label>
+                        <div class="tailwind-forms">
+                            <input type="text" required placeholder="How can we help you?">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Message</label>
+                        <div class="tailwind-forms">
+                            <textarea rows="5" required placeholder="Type your message here..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-indigo-600 text-white font-bold rounded-sm shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all">
+                        Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

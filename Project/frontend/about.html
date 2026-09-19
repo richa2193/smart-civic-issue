@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="pt-16 md:pt-20 pb-0 w-full">
+    <!-- Header & Mission -->
+    <div class="text-center max-w-4xl mx-auto px-4 sm:px-6">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">About CivicSaathi</h1>
+        <p class="text-xl text-slate-600 mb-16 leading-relaxed">
+            Our mission is to bridge the gap between citizens and government departments, ensuring quick and transparent resolution of civic issues through modern technology.
+        </p>
+    </div>
+
+    <!-- Platform at a Glance Strip (Full Width) -->
+    <div class="w-full bg-[#f0f4f8] border-y border-slate-200 py-10 mb-16 shadow-inner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-y-8 divide-x-0 md:divide-x divide-slate-300">
+                
+                <!-- Stat 1 -->
+                <div class="flex flex-col items-center justify-center px-4">
+                    <span class="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-2">{{ total_issues|default:"0" }}</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Total Issues Reported</span>
+                </div>
+                
+                <!-- Stat 2 -->
+                <div class="flex flex-col items-center justify-center px-4 border-l border-slate-300 md:border-l-0">
+                    <span class="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-2">{{ resolved_issues|default:"0" }}</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Issues Resolved</span>
+                </div>
+                
+                <!-- Stat 3 -->
+                <div class="flex flex-col items-center justify-center px-4 border-t border-slate-300 md:border-t-0 pt-8 md:pt-0">
+                    <span class="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-2">{{ departments_active|default:"0" }}</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Departments Active</span>
+                </div>
+                
+                <!-- Stat 4 -->
+                <div class="flex flex-col items-center justify-center px-4 border-l border-t border-slate-300 md:border-t-0 md:border-l-0 pt-8 md:pt-0">
+                    <span class="text-4xl md:text-5xl font-serif font-extrabold text-primary mb-2">{{ citizens_registered|default:"0" }}</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest text-center">Citizens Registered</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Audience Cards -->
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+        <!-- Citizens -->
+        <div class="bg-white p-8 rounded-sm shadow-sm border border-slate-200 border-l-4 border-l-primary hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+            <p class="text-[10px] font-bold text-[#d4af37] uppercase tracking-widest mb-3">Audience 01</p>
+            <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <h4 class="text-xl font-bold font-serif text-slate-900 mb-3">For Citizens</h4>
+            <p class="text-sm text-slate-600 leading-relaxed flex-1">
+                Report problems easily, attach photos, pinpoint exact locations on interactive maps, and track progress until resolution.
+            </p>
+        </div>
+
+        <!-- Departments -->
+        <div class="bg-white p-8 rounded-sm shadow-sm border border-slate-200 border-l-4 border-l-[#d4af37] hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+            <p class="text-[10px] font-bold text-[#d4af37] uppercase tracking-widest mb-3">Audience 02</p>
+            <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                <i class="fa-solid fa-building"></i>
+            </div>
+            <h4 class="text-xl font-bold font-serif text-slate-900 mb-3">For Departments</h4>
+            <p class="text-sm text-slate-600 leading-relaxed flex-1">
+                Receive auto-assigned complaints, manage workflow intelligently, update statuses efficiently, and never miss an SLA.
+            </p>
+        </div>
+
+        <!-- Admins -->
+        <div class="bg-white p-8 rounded-sm shadow-sm border border-slate-200 border-l-4 border-l-secondary hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col h-full">
+            <p class="text-[10px] font-bold text-[#d4af37] uppercase tracking-widest mb-3">Audience 03</p>
+            <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <h4 class="text-xl font-bold font-serif text-slate-900 mb-3">For Admins</h4>
+            <p class="text-sm text-slate-600 leading-relaxed flex-1">
+                Monitor overall performance, analyze data through beautiful interactive dashboards, and ensure civic accountability.
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- End-to-End Process Section -->
+<div class="mt-16 pt-16 md:pt-20 pb-16 md:pb-20 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-16 max-w-2xl mx-auto">
+            <h2 class="text-3xl font-serif font-extrabold text-slate-900 mb-4">How CivicSaathi Enforces Accountability</h2>
+            <p class="text-slate-600 text-lg">A completely transparent, step-by-step workflow designed to ensure every municipal issue is tracked, automatically routed, and fully resolved.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+            <!-- Step 1 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-primary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-camera"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 1</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Report & Evidence</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    Citizens submit geolocated reports with photographic evidence and detailed descriptions directly from the field.
+                </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-secondary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-map-pin"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 2</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Algorithmic Routing</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    Our categorization engine instantly parses the issue and assigns it precisely to the correct municipal department.
+                </p>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-primary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-clipboard-check"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 3</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Department Review</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    A designated department officer acknowledges the assignment and begins preliminary assessment of the reported site.
+                </p>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-secondary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 4</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">SLA Enforcement</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    The complaint is strictly tracked against the department's Service Level Agreement deadline, automatically flagging if overdue.
+                </p>
+            </div>
+            
+            <!-- Step 5 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-primary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-thumbs-up"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 5</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Community Upvotes</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    Fellow citizens can independently upvote existing grievances on the Public Ledger to elevate high-priority community issues.
+                </p>
+            </div>
+            
+            <!-- Step 6 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-secondary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-bell"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 6</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Real-Time Updates</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    The reporting citizen is actively notified via automated emails and in-app alerts whenever the grievance status formally changes.
+                </p>
+            </div>
+            
+            <!-- Step 7 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-primary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 7</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Formal Resolution</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    The department officer officially marks the issue as resolved, attaching closing remarks and visual proof of completion.
+                </p>
+            </div>
+            
+            <!-- Step 8 -->
+            <div class="bg-white p-6 rounded-sm shadow-sm border border-primary/20 border-t-4 border-t-secondary hover:shadow-md hover:-translate-y-1 transition-all duration-300 group flex flex-col">
+                <div class="w-12 h-12 bg-secondary text-white rounded-full flex items-center justify-center text-xl mb-6 shadow-sm">
+                    <i class="fa-solid fa-star"></i>
+                </div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Step 8</p>
+                <h4 class="text-lg font-bold text-slate-800 mb-3 font-serif">Citizen Verification</h4>
+                <p class="text-sm text-slate-600 leading-relaxed mt-auto">
+                    The resolution is verified by the citizen, and these metrics instantly feed the municipal dashboard for public transparency.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

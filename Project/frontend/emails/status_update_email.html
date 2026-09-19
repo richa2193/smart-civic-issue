@@ -1,0 +1,74 @@
+{% extends 'emails/base_email.html' %}
+
+{% block subject %}Issue Status Update: {{ complaint.status }}{% endblock %}
+
+{% block headline %}
+{% if complaint.status == 'In Progress' %}
+Work Has Started
+{% elif complaint.status == 'Resolved' %}
+Your Issue Has Been Resolved
+{% elif complaint.status == 'Closed' %}
+Issue Closed
+{% else %}
+Status Updated
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<p>Dear {{ complaint.user.first_name|default:"Citizen" }},</p>
+
+{% if complaint.status == 'In Progress' %}
+<p>Good news, work has started on your reported issue.</p>
+{% elif complaint.status == 'Resolved' %}
+<p>Your issue has been officially marked as <strong>Resolved</strong> by the designated department.</p>
+<p>Please visit the portal to confirm this resolution and provide your feedback, as this helps us maintain accountability.</p>
+{% elif complaint.status == 'Closed' %}
+<p>Your issue has been formally <strong>Closed</strong>.</p>
+{% else %}
+<p>There has been a status update on your reported issue.</p>
+{% endif %}
+
+<div style="background-color: #f1f5f9; padding: 20px; border-radius: 4px; border-left: 4px solid #0b3d66; margin: 25px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 14px;">
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b; width: 120px;"><strong>Issue ID:</strong></td>
+            <td style="padding-bottom: 8px; font-weight: bold; color: #0b3d66;">#{{ complaint.id }}</td>
+        </tr>
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b;"><strong>Title:</strong></td>
+            <td style="padding-bottom: 8px; color: #334155;">{{ complaint.title }}</td>
+        </tr>
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b;"><strong>Status Change:</strong></td>
+            <td style="padding-bottom: 8px; color: #334155;">
+                <span style="text-decoration: line-through; color: #94a3b8;">{{ old_status }}</span> 
+                <span style="font-weight: bold; color: #8b0000; margin-left: 5px;">&rarr; {{ complaint.status }}</span>
+            </td>
+        </tr>
+        
+        {% if complaint.remarks %}
+        <tr>
+            <td colspan="2" style="padding-top: 15px; padding-bottom: 5px;">
+                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; padding: 12px; border-radius: 3px;">
+                    <strong style="color: #64748b; font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px;">Official Remarks:</strong>
+                    <p style="margin: 0; color: #334155; font-style: italic;">"{{ complaint.remarks }}"</p>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
+</div>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 30px; margin-bottom: 20px;">
+    <tr>
+        <td align="center">
+            <a href="{{ site_url }}{% url 'complaint_detail' complaint.id %}" style="display: inline-block; padding: 12px 25px; background-color: #0b3d66; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 3px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #062846;">
+                View Full Timeline
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin-bottom: 0;">Thank you,<br>
+<strong>CivicSaathi Portal</strong></p>
+{% endblock %}

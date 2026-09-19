@@ -1,0 +1,120 @@
+{% load static %}
+<!-- Top Utility Bar -->
+<div class="bg-primary text-white text-xs py-1 border-b border-primary/80">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+    <div class="flex gap-4">
+      <a href="#main-content" class="hover:underline focus:underline focus:outline-none">Skip to Main Content</a>
+      <a href="#" class="hover:underline focus:outline-none">Screen Reader Access</a>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="flex gap-1 border-r border-white/20 pr-3">
+        <button class="hover:text-slate-300 focus:outline-none" aria-label="Decrease text size">A-</button>
+        <button class="hover:text-slate-300 focus:outline-none" aria-label="Default text size">A</button>
+        <button class="hover:text-slate-300 focus:outline-none" aria-label="Increase text size">A+</button>
+      </div>
+      <div class="flex gap-2">
+        <button class="hover:underline focus:outline-none font-medium">English</button>
+        <span class="text-white/50">|</span>
+        <button class="hover:underline focus:outline-none">हिंदी</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<nav class="bg-white sticky top-0 z-50 shadow-sm" x-data="{ mobileMenuOpen: false }">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center py-4">
+      
+      <!-- Logo and Official Subtext -->
+      <div class="flex-shrink-0 flex items-center">
+        <a href="{% url 'home' %}" class="flex items-center gap-3">
+            <img src="{% static 'img/civicsaathi-icon.svg' %}" alt="CivicSaathi" class="h-12 w-12">
+            <div class="flex flex-col leading-tight">
+                <span class="text-xl font-bold text-[#0b3d66]">CivicSaathi</span>
+                <span class="text-[11px] tracking-wider text-slate-500 uppercase">Report. Resolve. Improve.</span>
+            </div>
+        </a>
+      </div>
+      
+      <!-- Desktop Menu -->
+      <div class="hidden md:flex items-center space-x-6">
+        <a href="{% url 'home' %}" class="text-slate-700 hover:text-primary font-bold transition-colors">Home</a>
+        <a href="{% url 'public_ledger' %}" class="text-slate-700 hover:text-primary font-bold transition-colors">Public Ledger</a>
+        <a href="{% url 'heatmap' %}" class="text-slate-700 hover:text-primary font-bold transition-colors">Heatmap</a>
+        <a href="{% url 'about' %}" class="text-slate-700 hover:text-primary font-bold transition-colors">About</a>
+        <a href="{% url 'contact' %}" class="text-slate-700 hover:text-primary font-bold transition-colors">Contact</a>
+        
+        <div class="w-px h-6 bg-slate-200 mx-2"></div>
+
+        {% if user.is_authenticated %}
+            <!-- User Dropdown (Alpine.js) -->
+            <div class="relative" x-data="{ open: false }">
+                <button @click="open = !open" @click.outside="open = false" class="flex items-center gap-2 text-slate-700 font-bold hover:text-primary transition-colors focus:outline-none">
+                    {% if user.profile_picture %}
+                    <img src="{{ user.profile_picture.url }}" class="w-8 h-8 rounded border border-slate-200 object-cover">
+                    {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ user.email|urlencode }}&background=0b3d66&color=fff" class="w-8 h-8 rounded border border-slate-200">
+                    {% endif %}
+                    <span class="max-w-[120px] truncate">{{ user.email }}</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i>
+                </button>
+                
+                <div x-show="open" x-transition.opacity style="display: none;" class="absolute right-0 mt-3 w-48 bg-white rounded-sm shadow-lg border border-slate-200 py-1 z-50">
+                    <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary"><i class="fa-solid fa-table-columns w-5 text-slate-400"></i> Dashboard</a>
+                    <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-primary"><i class="fa-solid fa-user w-5 text-slate-400"></i> Profile</a>
+                    <div class="border-t border-slate-100 my-1"></div>
+                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-sm text-red-700 hover:bg-red-50"><i class="fa-solid fa-arrow-right-from-bracket w-5"></i> Logout</a>
+                </div>
+            </div>
+        {% else %}
+            <a href="{% url 'login' %}" class="text-slate-700 font-bold hover:text-primary transition-colors">Login</a>
+            <a href="{% url 'register' %}" class="px-5 py-2.5 bg-primary text-white font-bold rounded-sm shadow-sm hover:bg-primary/90 transition-all border border-primary">Report Issue</a>
+        {% endif %}
+      </div>
+      
+      <!-- Mobile menu button -->
+      <div class="flex items-center md:hidden gap-4">
+        <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-slate-700 hover:text-primary focus:outline-none p-2 border border-slate-200 rounded-sm bg-slate-50">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- Tricolor / Accent Strip -->
+  <div class="h-1 w-full bg-secondary"></div>
+
+  <!-- Mobile Menu -->
+  <div x-show="mobileMenuOpen" x-transition class="md:hidden border-b border-slate-200 bg-white" style="display: none;">
+    <div class="px-4 pt-2 pb-6 space-y-1">
+        <a href="{% url 'home' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm border-l-4 border-transparent hover:border-primary">Home</a>
+        <a href="{% url 'public_ledger' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm border-l-4 border-transparent hover:border-primary">Public Ledger</a>
+        <a href="{% url 'heatmap' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm border-l-4 border-transparent hover:border-primary">Heatmap</a>
+        <a href="{% url 'about' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm border-l-4 border-transparent hover:border-primary">About</a>
+        <a href="{% url 'contact' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm border-l-4 border-transparent hover:border-primary">Contact</a>
+        
+        <div class="border-t border-slate-100 my-4"></div>
+        
+        {% if user.is_authenticated %}
+            <div class="px-3 py-2 flex items-center gap-3 mb-2 bg-slate-50 border border-slate-100 rounded-sm">
+                {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" class="w-10 h-10 rounded object-cover">
+                {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ user.email|urlencode }}&background=0b3d66&color=fff" class="w-10 h-10 rounded">
+                {% endif %}
+                <div>
+                    <p class="text-sm font-bold text-slate-900">{{ user.email }}</p>
+                    <p class="text-xs text-slate-500 font-semibold uppercase">{{ user.role }}</p>
+                </div>
+            </div>
+            <a href="{% url 'dashboard' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm"><i class="fa-solid fa-table-columns w-6 text-slate-400"></i> Dashboard</a>
+            <a href="{% url 'profile' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm"><i class="fa-solid fa-user w-6 text-slate-400"></i> Profile</a>
+            <a href="{% url 'logout' %}" class="block px-3 py-3 text-base font-bold text-red-700 hover:bg-red-50 rounded-sm"><i class="fa-solid fa-arrow-right-from-bracket w-6"></i> Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="block px-3 py-3 text-base font-bold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-sm">Login</a>
+            <a href="{% url 'register' %}" class="block px-3 py-3 mt-2 text-center text-base font-bold bg-primary text-white rounded-sm shadow-sm hover:bg-primary/90">Report Issue</a>
+        {% endif %}
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,460 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<style>
+    #map {
+        height: 100%;
+        min-height: 500px;
+        width: 100%;
+        z-index: 10;
+    }
+    
+    .map-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(2px);
+    }
+    
+    .map-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #6c5ce7;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Tailwind Django Form Styles */
+    .tailwind-forms input:not([type="file"]), .tailwind-forms select, .tailwind-forms textarea {
+        width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        background-color: #f8fafc;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+    .tailwind-forms input:focus, .tailwind-forms select:focus, .tailwind-forms textarea:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        background-color: #fff;
+    }
+    .tailwind-forms input[type="file"] {
+        width: 100%;
+        padding: 0.5rem;
+        border: 2px dashed #cbd5e1;
+        border-radius: 0.75rem;
+        background: #f8fafc;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .tailwind-forms input[type="file"]:hover {
+        border-color: #6c5ce7;
+        background: #f1f5f9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">Report an Issue</h2>
+    <p class="text-slate-500 mt-1">Pinpoint the location and provide details about the civic issue.</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-200px)] min-h-[600px]">
+    
+    <!-- Left Column: Map -->
+    <div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-hidden relative flex flex-col">
+        <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 class="font-bold text-slate-800"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> Issue Location</h3>
+            <span class="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border border-slate-200 shadow-sm"><i class="fa-solid fa-arrows-up-down-left-right me-1 text-primary"></i> Drag pin to adjust</span>
+        </div>
+        
+        <div id="map-alert" class="hidden absolute top-16 left-4 right-4 z-50 bg-red-100 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm"></div>
+        
+        <div class="relative flex-1">
+            <div id="map"></div>
+            
+            <div id="map-loading" class="hidden map-loading-overlay">
+                <div class="map-spinner mb-3"></div>
+                <span class="font-bold text-primary">Detecting location...</span>
+            </div>
+            
+            <!-- Map Overlay Info Box -->
+            <div class="absolute bottom-6 left-6 z-50 bg-white p-3 rounded-sm shadow-lg border border-slate-100 max-w-xs">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nearby Complaints</p>
+                <div class="flex items-center gap-2 text-sm text-slate-700">
+                    <span class="w-3 h-3 rounded-full bg-red-500"></span> Pending
+                    <span class="w-3 h-3 rounded-full bg-blue-500 ms-2"></span> In Progress
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Form -->
+    <div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-y-auto">
+        <div class="p-6">
+            <form method="POST" enctype="multipart/form-data" class="space-y-5" id="report-issue-form">
+                {% csrf_token %}
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Issue Title <span class="text-red-500">*</span></label>
+                    <div class="tailwind-forms">
+                        {{ form.title }}
+                        <!-- Inject x-model into the generated input using JS below, or we can just bind to input event -->
+                    </div>
+                    
+                    <!-- Realtime Nearby Duplicate Detection Container -->
+                    <div id="duplicate-detection-container" class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-sm hidden transition-all">
+                        <p class="text-sm font-bold text-amber-800 flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> Possible Duplicates Nearby
+                        </p>
+                        <p class="text-xs text-amber-700 mb-3">We found similar active issues within 100m. If yours is one of these, please upvote it instead of creating a new report.</p>
+                        <div id="duplicate-results-list" class="space-y-2">
+                            <!-- Duplicate items injected via JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Category <span class="text-red-500">*</span></label>
+                        <div class="tailwind-forms">
+                            {{ form.category }}
+                        </div>
+                    </div>
+                    
+                    <!-- UI Mockup: Priority Selection -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Priority (Optional)</label>
+                        <div class="tailwind-forms">
+                            <select name="mock_priority" class="w-full rounded-lg border-slate-200">
+                                <option value="low">Low (Cosmetic/Minor)</option>
+                                <option value="medium" selected>Medium (Standard)</option>
+                                <option value="high">High (Urgent/Safety Hazard)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Photo Evidence <span class="text-red-500">*</span></label>
+                    <div class="tailwind-forms">
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                            <p class="text-red-500 text-xs mt-1 font-medium">{{ form.image.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs text-slate-500 mt-1">A photo is required to help departments verify and resolve your issue.</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 mb-1">Description <span class="text-red-500">*</span></label>
+                    <div class="tailwind-forms">
+                        {{ form.description }}
+                    </div>
+                </div>
+                
+                <div class="p-5 bg-gradient-to-r from-slate-50 to-indigo-50/30 rounded-sm border border-slate-200">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">Auto-detected Address</label>
+                    <div class="tailwind-forms">
+                        {{ form.address }}
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 flex items-start gap-1.5">
+                        <i class="fa-solid fa-circle-info text-primary mt-0.5"></i>
+                        <span>Address is auto-filled based on the map pin. You can manually edit if incorrect.</span>
+                    </p>
+                </div>
+                
+                <!-- Hidden Coordinates -->
+                {{ form.latitude }}
+                {{ form.longitude }}
+                
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-indigo-600 text-white font-bold rounded-sm shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition-all">
+                    Submit Report
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- JSON Data for JS -->
+<script type="application/json" id="public-complaints-data">
+[
+    {% for c in public_complaints %}
+    {
+        "lat": "{{ c.latitude|default:'0' }}",
+        "lng": "{{ c.longitude|default:'0' }}",
+        "title": "{{ c.title|escapejs }}",
+        "status": "{{ c.status|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+]
+</script>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Map JS -->
+<script src="/static/js/map.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const geoapifyKey = "{{ geoapify_key }}";
+        
+        // Pass empty initial coordinates so it relies on geolocation
+        const initialLat = null;
+        const initialLng = null;
+        
+        // Overwrite map.js to add nearby complaints
+        const map = initLeafletMap('map', geoapifyKey, initialLat, initialLng, true);
+        
+        // Bind Alpine x-model logic to the dynamically rendered Django title form field
+        const titleInput = document.querySelector('input[name="title"]');
+        if (titleInput) {
+            titleInput.setAttribute('x-model', 'title');
+            titleInput.setAttribute('@input', 'checkDuplicates()');
+        }
+        
+        // AI Category Suggestion Logic
+        const imageInput = document.querySelector('input[name="image"]');
+        const categorySelect = document.querySelector('select[name="category"]');
+        
+        if (imageInput && categorySelect) {
+            // Create a small UI element for the AI message
+            const aiMessage = document.createElement('div');
+            aiMessage.className = 'text-xs font-bold text-indigo-600 mt-1 hidden items-center gap-1.5 transition-all';
+            aiMessage.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> <span class="msg-text">Analyzing image...</span>';
+            categorySelect.parentNode.appendChild(aiMessage);
+            
+            imageInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    
+                    // Show loading state
+                    aiMessage.classList.remove('hidden');
+                    aiMessage.classList.add('flex');
+                    aiMessage.querySelector('.msg-text').textContent = 'AI analyzing photo...';
+                    aiMessage.classList.remove('text-green-600', 'text-amber-600');
+                    aiMessage.classList.add('text-indigo-600');
+                    
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    
+                    fetch('/complaints/api/suggest-category/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success' && data.suggested_category) {
+                            // Find the option in the dropdown and select it
+                            let optionFound = false;
+                            Array.from(categorySelect.options).forEach(opt => {
+                                if (opt.value === data.suggested_category) {
+                                    opt.selected = true;
+                                    optionFound = true;
+                                }
+                            });
+                            
+                            if (optionFound) {
+                                aiMessage.classList.remove('text-indigo-600');
+                                aiMessage.classList.add('text-green-600');
+                                aiMessage.querySelector('.msg-text').textContent = `✨ AI suggested: ${data.suggested_category}`;
+                            } else {
+                                aiMessage.classList.add('hidden');
+                                aiMessage.classList.remove('flex');
+                            }
+                        } else {
+                            // API succeeded but couldn't confidently guess
+                            aiMessage.classList.add('hidden');
+                            aiMessage.classList.remove('flex');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('AI suggestion failed:', err);
+                        aiMessage.classList.add('hidden');
+                        aiMessage.classList.remove('flex');
+                    });
+                } else {
+                    aiMessage.classList.add('hidden');
+                    aiMessage.classList.remove('flex');
+                }
+            });
+        }
+        
+        // Realtime Nearby Duplicate Detection Logic
+        const latInput = document.querySelector('input[name="latitude"]');
+        const lngInput = document.querySelector('input[name="longitude"]');
+        const dupContainer = document.getElementById('duplicate-detection-container');
+        const dupList = document.getElementById('duplicate-results-list');
+        
+        function checkNearbyDuplicates() {
+            if (!categorySelect || !latInput || !lngInput) return;
+            const cat = categorySelect.value;
+            const lat = latInput.value;
+            const lng = lngInput.value;
+            
+            if (cat && lat && lng) {
+                fetch(`/complaints/api/check-duplicates/?category=${encodeURIComponent(cat)}&lat=${lat}&lng=${lng}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status === 'success' && data.duplicates.length > 0) {
+                            dupList.innerHTML = '';
+                            data.duplicates.forEach(dup => {
+                                // Add styling based on status
+                                let statusClass = 'text-amber-600 bg-amber-50 border-amber-200';
+                                if(dup.status === 'Assigned' || dup.status === 'In Progress') {
+                                    statusClass = 'text-blue-600 bg-blue-50 border-blue-200';
+                                }
+                                
+                                const html = `
+                                    <div class="bg-white rounded-lg border border-amber-100 p-3 mb-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm hover:shadow transition-shadow">
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-800 line-clamp-1">${dup.title}</p>
+                                            <p class="text-xs text-slate-500 flex flex-wrap gap-2 mt-1">
+                                                <span class="inline-flex items-center gap-1"><i class="fa-solid fa-location-dot"></i> ${dup.distance}m away</span>
+                                                <span class="inline-block px-1.5 py-0.5 rounded border text-[10px] font-bold uppercase tracking-wide ${statusClass}">${dup.status}</span>
+                                                <span class="inline-flex items-center gap-1 text-primary"><i class="fa-solid fa-arrow-up"></i> ${dup.upvotes} upvotes</span>
+                                            </p>
+                                        </div>
+                                        <button type="button" class="upvote-duplicate-btn px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white border border-indigo-200 text-xs font-bold rounded transition-colors whitespace-nowrap" data-id="${dup.id}">
+                                            <i class="fa-solid fa-arrow-up me-1"></i> Upvote Instead
+                                        </button>
+                                    </div>
+                                `;
+                                dupList.insertAdjacentHTML('beforeend', html);
+                            });
+                            dupContainer.classList.remove('hidden');
+                            
+                            // Bind upvote buttons
+                            document.querySelectorAll('.upvote-duplicate-btn').forEach(btn => {
+                                btn.addEventListener('click', function() {
+                                    const complaintId = this.getAttribute('data-id');
+                                    this.disabled = true;
+                                    this.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Upvoting...';
+                                    
+                                    fetch(`/complaints/${complaintId}/upvote/`, {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRFToken': '{{ csrf_token }}',
+                                            'Content-Type': 'application/json'
+                                        }
+                                    })
+                                    .then(r => r.json())
+                                    .then(resData => {
+                                        if (resData.status === 'success') {
+                                            // Redirect to the upvoted complaint or dashboard
+                                            window.location.href = "{% url 'dashboard' %}";
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error(err);
+                                        this.disabled = false;
+                                        this.innerHTML = '<i class="fa-solid fa-arrow-up me-1"></i> Upvote Instead';
+                                    });
+                                });
+                            });
+                        } else {
+                            dupContainer.classList.add('hidden');
+                        }
+                    })
+                    .catch(err => console.error("Duplicate check failed", err));
+            } else {
+                dupContainer.classList.add('hidden');
+            }
+        }
+        
+        // Listen to category changes
+        if (categorySelect) {
+            categorySelect.addEventListener('change', checkNearbyDuplicates);
+        }
+        
+        // Listen to map pin changes via MutationObserver on the hidden inputs
+        // (Since map.js updates the hidden input value directly via DOM)
+        if (latInput && lngInput) {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.type === "attributes" && mutation.attributeName === "value") {
+                        checkNearbyDuplicates();
+                    }
+                });
+            });
+            observer.observe(latInput, { attributes: true });
+            observer.observe(lngInput, { attributes: true });
+        }
+        
+        // Wait for map to initialize, then add nearby pins
+        setTimeout(() => {
+            if (map) {
+                let complaints = [];
+                try {
+                    const rawData = JSON.parse(document.getElementById('public-complaints-data').textContent);
+                    complaints = rawData.map(c => ({
+                        ...c,
+                        lat: parseFloat(c.lat) || 0,
+                        lng: parseFloat(c.lng) || 0
+                    }));
+                } catch (e) {
+                    console.error("Error parsing complaints", e);
+                }
+                complaints.forEach(c => {
+                    if(c.lat && c.lng && c.lat !== 0) {
+                        let color = '#ef4444'; // Red
+                        if(c.status === 'Resolved' || c.status === 'Closed') return; // Don't show resolved as nearby issues here
+                        if(c.status === 'Assigned' || c.status === 'In Progress') color = '#3b82f6'; // Blue
+                        
+                        const markerHtmlStyles = `
+                          background-color: ${color};
+                          width: 1rem;
+                          height: 1rem;
+                          display: block;
+                          left: -0.5rem;
+                          top: -0.5rem;
+                          position: relative;
+                          border-radius: 2rem 2rem 0;
+                          transform: rotate(45deg);
+                          border: 2px solid #FFFFFF;
+                          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        `;
+                        
+                        const customIcon = L.divIcon({
+                          className: "custom-pin",
+                          iconAnchor: [0, 16],
+                          labelAnchor: [-6, 0],
+                          popupAnchor: [0, -16],
+                          html: `<span style="${markerHtmlStyles}"></span>`
+                        });
+                        
+                        L.marker([c.lat, c.lng], {icon: customIcon, interactive: false})
+                         .addTo(map);
+                    }
+                });
+            }
+        }, 2000);
+    });
+</script>
+{% endblock %}

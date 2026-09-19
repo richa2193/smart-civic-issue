@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 bg-slate-50 min-h-screen">
+
+    <!-- 1. HEADER CARD (top) -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8 relative">
+        <!-- Badges Row -->
+        <div class="flex justify-between items-start mb-6">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 uppercase tracking-wider">
+                {{ complaint.category }}
+            </span>
+            
+            {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 uppercase tracking-wider"><i class="fa-solid fa-check me-1.5"></i> {{ complaint.status }}</span>
+            {% elif complaint.status == 'In Progress' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wider"><i class="fa-solid fa-spinner fa-spin me-1.5"></i> {{ complaint.status }}</span>
+            {% elif complaint.status == 'Assigned' %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider"><i class="fa-solid fa-building-user me-1.5"></i> {{ complaint.status }}</span>
+            {% else %}
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-50 text-slate-700 border border-slate-200 uppercase tracking-wider">{{ complaint.status }}</span>
+            {% endif %}
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+            <div class="flex-1">
+                <p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Ticket #{{ complaint.id|stringformat:"04d" }}</p>
+                <h1 class="text-3xl md:text-4xl font-serif font-extrabold text-[#0b3d66] mb-4">{{ complaint.title }}</h1>
+                <p class="text-sm text-slate-600 flex items-center gap-2 font-medium">
+                    <i class="fa-solid fa-location-dot text-[#d4af37]"></i> 
+                    {{ complaint.address|default:"Location not specified" }}
+                </p>
+            </div>
+            
+            <!-- Upvote Section -->
+            <div class="flex flex-row md:flex-col items-center md:items-end gap-3 shrink-0 border-t border-slate-100 pt-6 md:border-t-0 md:pt-0">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-[#0b3d66] font-bold text-lg">
+                        {{ complaint.votes.count }}
+                    </div>
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Upvotes</span>
+                </div>
+                
+                {% if request.user.is_authenticated %}
+                    <form action="{% url 'upvote_complaint' complaint.id %}" method="POST" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="px-5 py-2.5 bg-[#0b3d66] text-white rounded-md text-sm font-bold hover:bg-[#082a47] transition-colors shadow-sm flex items-center gap-2 w-full md:w-auto justify-center">
+                            <i class="fa-solid fa-caret-up"></i> Upvote Issue
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}?next={{ request.path }}" class="px-5 py-2.5 bg-white border border-[#0b3d66] text-[#0b3d66] rounded-md text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm flex items-center gap-2 w-full md:w-auto justify-center">
+                        <i class="fa-solid fa-lock text-xs"></i> Login to Upvote
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. HORIZONTAL RESOLUTION TIMELINE -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-10 overflow-x-auto">
+        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-10 text-center">Resolution Tracker</h3>
+        
+        <div class="relative min-w-[600px] md:min-w-0 flex items-center justify-between px-8 md:px-12">
+            <!-- Background Line -->
+            <div class="absolute left-14 md:left-20 right-14 md:right-20 top-1/2 -translate-y-1/2 h-[3px] bg-slate-100 z-0"></div>
+            
+            <!-- Progress Line -->
+            <div class="absolute left-14 md:left-20 top-1/2 -translate-y-1/2 h-[3px] bg-[#d4af37] z-0 transition-all duration-500 max-w-[calc(100%-7rem)] {% if complaint.status == 'Submitted' %}w-0{% elif complaint.status == 'Assigned' %}w-[33%]{% elif complaint.status == 'In Progress' %}w-[66%]{% elif complaint.status == 'Resolved' or complaint.status == 'Closed' %}w-full{% else %}w-0{% endif %}"></div>
+
+            <!-- Step 1: Reported -->
+            <div class="relative z-10 flex flex-col items-center group bg-white">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center border-[3px] transition-all duration-300
+                    {% if complaint.status == 'Submitted' %}
+                        bg-white border-[#d4af37] text-[#0b3d66] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-pulse
+                    {% else %}
+                        bg-[#0b3d66] border-[#0b3d66] text-[#d4af37] shadow-md group-hover:scale-110
+                    {% endif %}
+                ">
+                    {% if complaint.status == 'Submitted' %}
+                        <i class="fa-solid fa-1"></i>
+                    {% else %}
+                        <i class="fa-solid fa-check"></i>
+                    {% endif %}
+                </div>
+                <span class="absolute top-14 text-[10px] font-bold mt-2 uppercase tracking-widest text-center whitespace-nowrap {% if complaint.status == 'Submitted' %}text-[#d4af37]{% else %}text-[#0b3d66]{% endif %}">Reported</span>
+            </div>
+
+            <!-- Step 2: Assigned -->
+            <div class="relative z-10 flex flex-col items-center group bg-white">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center border-[3px] transition-all duration-300
+                    {% if complaint.status == 'Assigned' %}
+                        bg-white border-[#d4af37] text-[#0b3d66] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-pulse
+                    {% elif complaint.status == 'In Progress' or complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                        bg-[#0b3d66] border-[#0b3d66] text-[#d4af37] shadow-md group-hover:scale-110
+                    {% else %}
+                        bg-white border-slate-200 text-slate-300
+                    {% endif %}
+                ">
+                    {% if complaint.status == 'In Progress' or complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                        <i class="fa-solid fa-check"></i>
+                    {% else %}
+                        <i class="fa-solid fa-2"></i>
+                    {% endif %}
+                </div>
+                <span class="absolute top-14 text-[10px] font-bold mt-2 uppercase tracking-widest text-center whitespace-nowrap 
+                    {% if complaint.status == 'Assigned' %}text-[#d4af37]
+                    {% elif complaint.status == 'In Progress' or complaint.status == 'Resolved' or complaint.status == 'Closed' %}text-[#0b3d66]
+                    {% else %}text-slate-400{% endif %}">Routed</span>
+            </div>
+
+            <!-- Step 3: In Progress -->
+            <div class="relative z-10 flex flex-col items-center group bg-white">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center border-[3px] transition-all duration-300
+                    {% if complaint.status == 'In Progress' %}
+                        bg-white border-[#d4af37] text-[#0b3d66] shadow-[0_0_15px_rgba(212,175,55,0.4)] animate-pulse
+                    {% elif complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                        bg-[#0b3d66] border-[#0b3d66] text-[#d4af37] shadow-md group-hover:scale-110
+                    {% else %}
+                        bg-white border-slate-200 text-slate-300
+                    {% endif %}
+                ">
+                    {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                        <i class="fa-solid fa-check"></i>
+                    {% else %}
+                        <i class="fa-solid fa-3"></i>
+                    {% endif %}
+                </div>
+                <span class="absolute top-14 text-[10px] font-bold mt-2 uppercase tracking-widest text-center whitespace-nowrap
+                    {% if complaint.status == 'In Progress' %}text-[#d4af37]
+                    {% elif complaint.status == 'Resolved' or complaint.status == 'Closed' %}text-[#0b3d66]
+                    {% else %}text-slate-400{% endif %}">In Progress</span>
+            </div>
+
+            <!-- Step 4: Resolved -->
+            <div class="relative z-10 flex flex-col items-center group bg-white">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center border-[3px] transition-all duration-300
+                    {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                        bg-[#0b3d66] border-[#0b3d66] text-[#d4af37] shadow-md group-hover:scale-110
+                    {% else %}
+                        bg-white border-slate-200 text-slate-300
+                    {% endif %}
+                ">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <span class="absolute top-14 text-[10px] font-bold mt-2 uppercase tracking-widest text-center whitespace-nowrap
+                    {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}text-[#0b3d66]{% else %}text-slate-400{% endif %}">Resolved</span>
+            </div>
+        </div>
+        <div class="h-8 md:h-6"></div> <!-- Spacer for absolute text -->
+    </div>
+
+    <!-- 3. TWO-COLUMN INFO LAYOUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12 items-start">
+        
+        <!-- Left Column: Photo & Description -->
+        <div class="lg:col-span-2 space-y-8">
+            
+            <!-- Description -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                    <i class="fa-solid fa-align-left text-[#0b3d66]"></i> Issue Description
+                </h3>
+                <div class="prose max-w-none text-slate-700 whitespace-pre-wrap leading-relaxed text-sm md:text-base">{{ complaint.description }}</div>
+            </div>
+
+            <!-- Reported Photo -->
+            {% if complaint.image %}
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 md:p-8">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+                    <i class="fa-solid fa-camera text-[#0b3d66]"></i> Reported Photo
+                </h3>
+                <div class="rounded-lg overflow-hidden bg-slate-50 border border-slate-200">
+                    <img src="{{ complaint.image.url }}" class="w-full h-auto max-h-[500px] object-contain" alt="Issue Evidence">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Resolution Photo (if resolved) -->
+            {% if complaint.resolved_image %}
+            <div class="bg-white rounded-lg shadow-sm border border-emerald-200 p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-bl-[100px] z-0"></div>
+                <h3 class="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-6 flex items-center gap-2 border-b border-emerald-100 pb-4 relative z-10">
+                    <i class="fa-solid fa-check-circle text-emerald-600"></i> Official Resolution Evidence
+                </h3>
+                <div class="rounded-lg overflow-hidden bg-white border border-slate-200 relative z-10 shadow-sm">
+                    <img src="{{ complaint.resolved_image.url }}" class="w-full h-auto max-h-[500px] object-contain" alt="Resolution Evidence">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Right Column: Issue Information & Status History -->
+        <div class="lg:col-span-1 space-y-8">
+            
+            <!-- Issue Information -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 rounded-t-lg">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-[#d4af37]"></i> Issue Information
+                    </h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Reported</p>
+                        <p class="text-sm font-medium text-slate-700">{{ complaint.created_at|date:"M d, Y" }} at {{ complaint.created_at|date:"h:i A" }}</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Department Assigned</p>
+                        {% if complaint.department %}
+                            <p class="text-sm font-bold text-[#0b3d66]">{{ complaint.department.department_name }}</p>
+                        {% else %}
+                            <p class="text-sm font-medium text-slate-500 italic">Pending Assignment</p>
+                        {% endif %}
+                    </div>
+
+                    {% if complaint.is_overdue %}
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">SLA Status</p>
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-sm border border-[#8b0000] text-[10px] font-bold bg-red-50 text-[#8b0000] uppercase tracking-wider shadow-sm">
+                            <i class="fa-solid fa-triangle-exclamation me-1.5"></i> SLA Overdue
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Status History Log -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200">
+                <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 rounded-t-lg">
+                    <h3 class="text-xs font-bold text-slate-700 uppercase tracking-widest flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-[#d4af37]"></i> Status History
+                    </h3>
+                </div>
+                <div class="p-6">
+                    <div class="relative space-y-8 before:absolute before:inset-0 before:ml-[1.125rem] before:-translate-x-px md:before:ml-[1.125rem] before:h-full before:w-0.5 before:bg-gradient-to-b before:from-slate-200 before:via-slate-200 before:to-transparent">
+                        
+                        <!-- Initial Report -->
+                        <div class="relative flex items-start gap-4">
+                            <div class="w-9 h-9 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0 z-10 shadow-sm">
+                                <i class="fa-solid fa-file-signature text-xs"></i>
+                            </div>
+                            <div class="pt-1.5">
+                                <p class="text-sm font-bold text-slate-700">Issue Reported</p>
+                                <p class="text-xs text-slate-500 mt-1">{{ complaint.created_at|date:"M d, Y h:i A" }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Remarks/Updates -->
+                        {% if complaint.remarks %}
+                        <div class="relative flex items-start gap-4">
+                            <div class="w-9 h-9 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-600 shrink-0 z-10 shadow-sm">
+                                <i class="fa-solid fa-comment-dots text-xs"></i>
+                            </div>
+                            <div class="pt-1.5 w-full">
+                                <p class="text-sm font-bold text-slate-700">Department Remark Added</p>
+                                <p class="text-xs text-slate-500 mt-1">{{ complaint.updated_at|date:"M d, Y h:i A" }}</p>
+                                <div class="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200 text-sm text-slate-600 italic">
+                                    "{{ complaint.remarks }}"
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Resolution -->
+                        {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
+                        <div class="relative flex items-start gap-4">
+                            <div class="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 shrink-0 z-10 shadow-sm">
+                                <i class="fa-solid fa-check-double text-xs"></i>
+                            </div>
+                            <div class="pt-1.5">
+                                <p class="text-sm font-bold text-slate-700">Issue Resolved</p>
+                                <p class="text-xs text-slate-500 mt-1">
+                                    {% if complaint.resolved_at %}{{ complaint.resolved_at|date:"M d, Y h:i A" }}{% else %}{{ complaint.updated_at|date:"M d, Y h:i A" }}{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

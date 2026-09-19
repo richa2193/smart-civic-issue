@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}My Team | CivicSaathi{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div>
+        <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-users text-primary"></i> My Team
+        </h2>
+        <p class="text-slate-600 mt-1">Manage field workers across all departments</p>
+    </div>
+    <a href="{% url 'add_worker' %}" class="px-4 py-2 bg-primary text-white rounded-md text-sm font-bold hover:bg-indigo-700 shadow-sm flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Add Worker
+    </a>
+</div>
+
+<div class="bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden" x-data="{ deptFilter: 'all' }">
+    {% if workers %}
+    <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+        <div class="text-sm font-bold text-slate-700">Filter by Department:</div>
+        <select x-model="deptFilter" class="rounded-md border-slate-300 text-sm focus:border-primary focus:ring-primary shadow-sm w-64">
+            <option value="all">All Departments</option>
+            {% for dept in departments %}
+            <option value="{{ dept.id }}">{{ dept.department_name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Worker Name</th>
+                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Contact</th>
+                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Department</th>
+                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Specialization</th>
+                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                    <th class="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                {% for worker in workers %}
+                <tr class="hover:bg-slate-50 transition-colors" x-show="deptFilter === 'all' || deptFilter === '{{ worker.department.id|default_if_none:"" }}'">
+                    <td class="p-4 font-bold text-slate-800">{{ worker.name }}</td>
+                    <td class="p-4 text-sm text-slate-600">
+                        <a href="tel:{{ worker.phone_number }}" class="hover:text-primary transition-colors flex items-center gap-2"><i class="fa-solid fa-phone text-slate-400 text-xs"></i> {{ worker.phone_number }}</a>
+                    </td>
+                    <td class="p-4">
+                        {% if worker.department %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                            {{ worker.department.department_name }}
+                        </span>
+                        {% else %}
+                        <span class="text-slate-400 italic text-xs">Unassigned</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4">
+                        {% if worker.specialization %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            {{ worker.specialization }}
+                        </span>
+                        {% else %}
+                        <span class="text-slate-400 italic text-xs">General</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4">
+                        {% if worker.is_available %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">Available</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-100 text-slate-500 border border-slate-200">Unavailable</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 text-right space-x-2">
+                        <a href="{% url 'edit_worker' worker.id %}" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:text-primary hover:border-primary transition-colors" title="Edit Worker">
+                            <i class="fa-solid fa-pen text-xs"></i>
+                        </a>
+                        <form method="POST" action="{% url 'toggle_worker_availability' worker.id %}" class="inline-block">
+                            {% csrf_token %}
+                            <button type="submit" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 border border-slate-200 text-slate-600 hover:text-primary hover:border-primary transition-colors" title="Toggle Availability">
+                                <i class="fa-solid fa-power-off text-xs"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="p-12 text-center flex flex-col items-center">
+        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center border border-slate-200 mb-4">
+            <i class="fa-solid fa-users-slash text-2xl text-slate-400"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 mb-2">No Workers Found</h3>
+        <p class="text-slate-500 mb-6 max-w-md mx-auto">There are no field workers registered in the system yet. Add workers to assign them to complaints.</p>
+        <a href="{% url 'add_worker' %}" class="px-6 py-2.5 bg-primary text-white font-bold rounded-md shadow-sm hover:bg-indigo-700 transition-colors">
+            Add First Worker
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

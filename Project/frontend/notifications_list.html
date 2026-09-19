@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-6 flex flex-col sm:flex-row justify-between sm:items-end gap-4">
+    <div>
+        <h2 class="text-2xl font-bold text-slate-800 ">Activity & Notifications</h2>
+        <p class="text-slate-500 mt-1">Stay updated on all your system activities.</p>
+    </div>
+    <div class="flex gap-3">
+        <form method="POST" action="{% url 'mark_notifications_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 :bg-slate-700 transition-colors shadow-sm">
+                <i class="fa-solid fa-check-double me-2"></i> Mark all read
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-hidden">
+    <div class="divide-y divide-slate-50">
+        {% for notification in notifications %}
+        <div class="px-6 py-5 hover:bg-slate-50 transition-colors {% if not notification.is_read %}bg-indigo-50/20{% endif %}">
+            <div class="flex gap-4">
+                <div class="w-10 h-10 rounded-full {% if not notification.is_read %}bg-primary/10 text-primary{% else %}bg-slate-100 text-slate-500{% endif %} flex items-center justify-center flex-shrink-0 mt-1">
+                    <i class="fa-solid fa-bell text-sm"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between items-start gap-4">
+                        <p class="text-[15px] text-slate-800 leading-relaxed">{{ notification.message }}</p>
+                        {% if not notification.is_read %}
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0 mt-1.5"></div>
+                        {% endif %}
+                    </div>
+                    <p class="text-xs font-bold {% if not notification.is_read %}text-primary{% else %}text-slate-400{% endif %} mt-2 uppercase tracking-wider">{{ notification.created_at|timesince }} ago</p>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="px-6 py-16 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-50 mb-4">
+                <i class="fa-regular fa-bell-slash text-slate-300 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800 mb-1">No notifications</h3>
+            <p class="text-slate-500">You're all caught up! There are no notifications to display.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

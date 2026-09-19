@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+    /* Tailwind Django Form Styles */
+    .tailwind-forms input, .tailwind-forms select, .tailwind-forms textarea {
+        width: 100%;
+        border-radius: 0.5rem;
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+        background-color: #f8fafc;
+        color: #1e293b;
+        transition: all 0.2s;
+    }
+    .tailwind-forms input:focus, .tailwind-forms select:focus, .tailwind-forms textarea:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+        background-color: #fff;
+    }
+    .dark .tailwind-forms input, .dark .tailwind-forms select, .dark .tailwind-forms textarea {
+        background-color: #0f172a;
+        border-color: #334155;
+        color: #f8fafc;
+    }
+    .dark .tailwind-forms input:focus, .dark .tailwind-forms select:focus, .dark .tailwind-forms textarea:focus {
+        background-color: #1e293b;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
+    <div class="shrink-0">
+        <h2 class="text-2xl font-bold text-slate-800 ">My Profile</h2>
+        <p class="text-slate-500 mt-1 text-sm">Manage your personal information.</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-sm shadow-sm border border-slate-100 p-8 text-center relative overflow-hidden group hover:shadow-md transition-shadow">
+            <div class="w-full h-24 bg-gradient-to-r from-primary to-indigo-500 absolute top-0 left-0 group-hover:scale-105 transition-transform duration-500"></div>
+            
+            <div class="relative w-24 h-24 mx-auto mb-4 z-10">
+                <div id="avatar-preview" class="w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-white shadow-md text-3xl font-bold text-primary overflow-hidden bg-center bg-cover bg-no-repeat"
+                     {% if user.profile_picture %}style="background-image: url('{{ user.profile_picture.url }}');"{% endif %}>
+                    {% if not user.profile_picture %}
+                        <span id="avatar-initial">{{ user.full_name|default:user.email|make_list|first|upper }}</span>
+                    {% endif %}
+                </div>
+                
+                <label for="profile_picture_input" class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white border-2 border-white cursor-pointer shadow-sm hover:bg-indigo-700 transition-colors" title="Change Photo">
+                    <i class="fa-solid fa-camera text-sm"></i>
+                </label>
+                <input type="file" form="profile_update_form" name="profile_picture" id="profile_picture_input" accept="image/*" class="hidden" onchange="previewImage(this)">
+            </div>
+            
+            {% if user.profile_picture %}
+                <div class="relative z-10 text-center mb-2" id="remove_photo_container">
+                    <label class="text-xs text-red-500 hover:text-red-700 font-medium cursor-pointer" onclick="document.getElementById('avatar-preview').style.backgroundImage='none'; document.getElementById('avatar-preview').innerHTML='<span id=\'avatar-initial\'>{{ user.full_name|default:user.email|make_list|first|upper }}</span>'; this.parentElement.style.display='none'; document.getElementById('profile_picture_input').value='';">
+                        <input type="checkbox" form="profile_update_form" name="remove_photo" value="true" class="hidden" id="remove_photo_input" onclick="event.stopPropagation();">
+                        Remove Photo
+                    </label>
+                </div>
+            {% endif %}
+            
+            <h3 class="text-xl font-bold text-slate-800 mb-1 relative z-10">{{ user.full_name|default:"Citizen" }}</h3>
+            <p class="text-sm text-slate-500 mb-4 relative z-10">{{ user.email }}</p>
+            
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase tracking-wider relative z-10">
+                {{ user.role }}
+            </span>
+            
+            <div class="mt-8 pt-6 border-t border-slate-100 text-left relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Account Information</p>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between">
+                        <span class="text-slate-500 ">Member Since:</span>
+                        <span class="font-medium text-slate-800 ">{{ user.date_joined|date:"M d, Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 ">
+                <h3 class="font-bold text-slate-800 "><i class="fa-solid fa-user-pen text-primary me-2"></i> Update Profile</h3>
+            </div>
+            
+            <div class="p-6 md:p-8">
+                <form method="POST" class="space-y-5" enctype="multipart/form-data" id="profile_update_form">
+                    {% csrf_token %}
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Full Name</label>
+                        <div class="tailwind-forms">
+                            {{ form.full_name }}
+                        </div>
+                        {% if form.full_name.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.full_name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
+                        <div class="tailwind-forms">
+                            {{ form.email }}
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">This email is used for login and notifications.</p>
+                        {% if form.email.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Phone Number (Optional)</label>
+                        <div class="tailwind-forms">
+                            {{ form.phone }}
+                        </div>
+                        {% if form.phone.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.phone.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="pt-4 border-t border-slate-100 ">
+                        <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Officer Work History -->
+        {% if user.role == 'Department Officer' %}
+        <div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-hidden mt-8">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                <h3 class="font-bold text-slate-800 "><i class="fa-solid fa-briefcase text-primary me-2"></i> Recent Resolutions</h3>
+            </div>
+            <div class="p-6 md:p-8">
+                {% if recent_resolutions %}
+                <div class="relative border-l-2 border-slate-200 ml-3 space-y-6">
+                    {% for res in recent_resolutions %}
+                    <div class="relative pl-6">
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white ring-4 ring-emerald-50"></div>
+                        <a href="{% url 'complaint_detail' res.id %}" class="text-sm font-bold text-slate-800 hover:text-primary transition-colors block">Resolved: {{ res.title }}</a>
+                        <p class="text-xs text-slate-500 mt-1">{{ res.updated_at|date:"M d, Y \a\t h:i A" }} &bull; <span class="text-indigo-600 font-medium">Ticket #{{ res.id|stringformat:"04d" }}</span></p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-6 pt-2 text-center">
+                    <a href="{% url 'assigned_complaints' %}" class="inline-block text-sm font-bold text-primary hover:text-indigo-700 transition-colors">View All History &rarr;</a>
+                </div>
+                {% else %}
+                <p class="text-sm text-slate-500 text-center py-4">No recent resolutions found.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            input.value = '';
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('avatar-preview');
+            preview.style.backgroundImage = "url('" + e.target.result + "')";
+            preview.innerHTML = '';
+            
+            var removePhotoContainer = document.getElementById('remove_photo_container');
+            if (removePhotoContainer) {
+                removePhotoContainer.style.display = 'none';
+            }
+            var removeInput = document.getElementById('remove_photo_input');
+            if (removeInput) {
+                removeInput.checked = false;
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+}
+</script>
+{% endblock %}

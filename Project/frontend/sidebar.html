@@ -1,0 +1,168 @@
+{% load static %}
+<!-- Sidebar (Tailwind + Alpine.js) -->
+<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-50 w-64 bg-white text-slate-600 transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 flex flex-col shadow-xl border-r border-slate-200 ">
+    
+    <!-- Sidebar Header -->
+    <div class="flex items-center justify-between h-16 px-6 bg-white border-b border-slate-200 ">
+        <a href="{% url 'dashboard' %}" class="flex items-center gap-3 text-slate-800 hover:text-primary :text-white transition-colors">
+            <img src="{% static 'img/civicsaathi-icon.svg' %}" alt="CivicSaathi" class="h-10 w-10">
+            <div class="flex flex-col items-start leading-tight">
+                <span class="text-2xl font-bold text-[#0b3d66] tracking-tight">CivicSaathi</span>
+                <span class="text-[9px] tracking-normal text-slate-500 uppercase mt-0.5 whitespace-nowrap">Report. Resolve. Improve.</span>
+            </div>
+        </a>
+        <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-slate-800 :text-white">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 flex flex-col px-4 py-6 overflow-y-auto">
+        <div class="space-y-2">
+            <p class="px-2 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Main Menu</p>
+            
+            <a href="{% url 'dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-house w-5 text-center"></i>
+                Dashboard
+            </a>
+            
+            {% if user.role == 'Citizen' %}
+            <a href="{% url 'report_issue' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'report_issue' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-plus-circle w-5 text-center"></i>
+                Report Issue
+            </a>
+            <a href="{% url 'my_complaints' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'my_complaints' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-list-check w-5 text-center"></i>
+                My Complaints
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'Department Officer' %}
+            <a href="{% url 'assigned_complaints' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'assigned_complaints' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-clipboard-list w-5 text-center"></i>
+                Assigned Work
+            </a>
+            <a href="{% url 'workers_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if 'team' in request.path or request.resolver_match.url_name == 'workers_list' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-users w-5 text-center"></i>
+                My Team
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'Admin' %}
+            <p class="px-2 text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-2">Administration</p>
+            <a href="{% url 'manage_complaints' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'manage_complaints' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-layer-group w-5 text-center"></i>
+                All Complaints
+            </a>
+            <a href="{% url 'manage_departments' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'manage_departments' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-building w-5 text-center"></i>
+                Departments
+            </a>
+            <a href="{% url 'manage_users' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'manage_users' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-users-cog w-5 text-center"></i>
+                Users
+            </a>
+            <a href="{% url 'analytics' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'analytics' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                Analytics
+            </a>
+            {% endif %}
+            
+            <p class="px-2 text-xs font-semibold text-slate-400 uppercase tracking-wider mt-6 mb-2">Public</p>
+            <a href="{% url 'community_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors {% if request.resolver_match.url_name == 'community_dashboard' %}bg-indigo-50 text-primary font-bold{% else %}hover:bg-slate-50 :bg-slate-800 hover:text-slate-900 :text-white font-medium{% endif %}">
+                <i class="fa-solid fa-globe w-5 text-center"></i>
+                Community Map
+            </a>
+        </div>
+        
+        <!-- Sidebar Extras (Widgets at the bottom) -->
+        <div class="mt-auto pt-8 space-y-4">
+            
+            {% if stats %}
+                {% if user.role == 'Citizen' %}
+                    <!-- Quick Status Widget -->
+                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 shadow-sm">
+                        {% if stats.total > 0 %}
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-indigo-50 text-primary flex items-center justify-center shrink-0">
+                                    <i class="fa-solid fa-list-check text-sm"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide mb-0.5">Active Issues</p>
+                                    <p class="text-lg font-bold text-slate-800 leading-none">{{ stats.pending|default:"0" }}</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-1">
+                                <i class="fa-regular fa-lightbulb text-amber-500 mb-2 text-lg"></i>
+                                <p class="text-xs text-slate-600 font-medium leading-relaxed">No issues reported yet &mdash; tap <strong class="text-primary">Report Issue</strong> to get started.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% elif user.role == 'Department Officer' %}
+                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-red-50 text-secondary flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-clipboard-list text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide mb-0.5">Assigned Work</p>
+                                <p class="text-lg font-bold text-slate-800 leading-none">{{ stats.pending|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% elif user.role == 'Admin' %}
+                    <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                                <i class="fa-solid fa-layer-group text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wide mb-0.5">Awaiting Assignment</p>
+                                <p class="text-lg font-bold text-slate-800 leading-none">{{ stats.pending|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Helpline Card -->
+            <div class="bg-primary/5 border border-primary/10 rounded-xl p-4">
+                <p class="text-[10px] font-bold text-primary uppercase tracking-wider mb-1.5">Need Help?</p>
+                <div class="flex items-center gap-2 text-slate-700">
+                    <i class="fa-solid fa-phone text-primary text-sm"></i>
+                    <span class="text-sm font-bold">1800-SMART-CIVIC</span>
+                </div>
+            </div>
+
+            <!-- Tip of the Day -->
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 hidden lg:block">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Did you know?</p>
+                <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                    You can track any public issue via the <a href="{% url 'community_dashboard' %}" class="text-primary hover:underline font-bold">Public Ledger</a>, even without logging in.
+                </p>
+            </div>
+            
+        </div>
+    </nav>
+    
+    <!-- User Footer -->
+    <div class="p-4 bg-slate-50 border-t border-slate-200 ">
+        <div class="flex items-center gap-3">
+            {% if user.profile_picture %}
+            <img src="{{ user.profile_picture.url }}" alt="{{ user.email }}" class="w-10 h-10 rounded-full shrink-0 shadow-sm object-cover">
+            {% else %}
+            <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shrink-0 shadow-sm">
+                {{ user.email|make_list|first|upper }}
+            </div>
+            {% endif %}
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-bold text-slate-800 truncate">{{ user.full_name|default:user.email }}</p>
+                <p class="text-xs text-slate-500 truncate">{{ user.role }}</p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Mobile Overlay -->
+<div x-show="sidebarOpen" @click="sidebarOpen = false" x-transition.opacity class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden" style="display: none;"></div>

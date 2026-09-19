@@ -1,0 +1,63 @@
+/* Map container styling */
+.map-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
+/* Make map responsive */
+@media (max-width: 768px) {
+    .map-container {
+        height: 300px;
+    }
+}
+
+/* Loading overlay for address resolution */
+.map-loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.7);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.map-loading-overlay.active {
+    display: flex;
+}
+
+/* Spinner styling */
+.map-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 0.25rem solid rgba(13, 110, 253, 0.25);
+    border-top-color: #0d6efd;
+    border-radius: 50%;
+    animation: map-spin 1s linear infinite;
+}
+
+@keyframes map-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Alert container overlaying map */
+.map-alert-container {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1001;
+    width: 90%;
+    max-width: 400px;
+}
