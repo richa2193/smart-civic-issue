@@ -1,0 +1,278 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} | CivicSaathi{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+        <a href="{% url 'workers_list' %}" class="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-primary hover:bg-slate-50 transition-colors shadow-sm">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                {{ title }}
+            </h2>
+            <p class="text-slate-600 mt-1">Manage field worker details</p>
+        </div>
+    </div>
+</div>
+
+<div x-data="workerPreview()" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+    
+    <!-- LEFT COLUMN: Form (~60%) -->
+    <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-md shadow-sm border border-slate-200 overflow-hidden">
+        <form method="POST" class="p-6 md:p-8 space-y-6" id="worker-form">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-slate-700">Worker Name <span class="text-red-500">*</span></label>
+                    <div x-ref="nameInputContainer">
+                        <input type="text" name="worker_full_name_v2" 
+                               autocomplete="worker-name-nofill" 
+                               x-model="name"
+                               class="w-full h-11 px-4 border border-slate-300 rounded-lg text-base text-slate-800 bg-white focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 shadow-sm transition-colors" 
+                               placeholder="e.g. Rahul Sharma"
+                               required>
+                    </div>
+                    {% if form.name.errors %}
+                        <p class="text-sm text-red-600 font-medium"><i class="fa-solid fa-circle-exclamation me-1"></i> {{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="space-y-2">
+                    <label class="block text-sm font-bold text-slate-700">Phone Number <span class="text-red-500">*</span></label>
+                    <div x-ref="phoneInputContainer">
+                        <input type="tel" name="worker_phone_v2" 
+                               autocomplete="worker-phone-nofill" 
+                               x-model="phone"
+                               pattern="[0-9]{10}"
+                               class="w-full h-11 px-4 border border-slate-300 rounded-lg text-base text-slate-800 bg-white focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-200 shadow-sm transition-colors" 
+                               placeholder="10-digit mobile number"
+                               required>
+                    </div>
+                    {% if form.phone_number.errors %}
+                        <p class="text-sm text-red-600 font-medium"><i class="fa-solid fa-circle-exclamation me-1"></i> {{ form.phone_number.errors.0 }}</p>
+                    {% endif %}
+                    <p class="text-xs text-slate-500" x-show="!phoneIsValid() && phone.length > 0 && phone.length < 10"><i class="fa-solid fa-circle-info me-1"></i> Must be 10 digits</p>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700">Department <span class="text-red-500">*</span></label>
+                <div x-ref="deptInputContainer">
+                    {{ form.department }}
+                </div>
+                {% if form.department.errors %}
+                    <p class="text-sm text-red-600 font-medium"><i class="fa-solid fa-circle-exclamation me-1"></i> {{ form.department.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700">Specialization</label>
+                <div x-ref="specInputContainer">
+                    {{ form.specialization }}
+                </div>
+                
+                <!-- Suggestion Chips -->
+                <div class="flex flex-wrap gap-2 mt-2">
+                    <template x-for="chip in specializationChips" :key="chip">
+                        <button type="button" @click="setSpecialization(chip)" 
+                            class="px-2.5 py-1 text-xs font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+                            :class="specialization.toLowerCase() === chip.toLowerCase() ? 'bg-primary text-white border-primary' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-800'">
+                            <span x-text="chip"></span>
+                        </button>
+                    </template>
+                </div>
+                
+                <p class="text-xs text-slate-500 mt-2">Optional. Helps identify the right worker for specific tasks.</p>
+                {% if form.specialization.errors %}
+                    <p class="text-sm text-red-600 font-medium"><i class="fa-solid fa-circle-exclamation me-1"></i> {{ form.specialization.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-md border border-slate-100 mt-4">
+                <div x-ref="availInputContainer" class="flex items-center h-5">
+                    {{ form.is_available }}
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-sm font-bold text-slate-800 cursor-pointer" @click="$refs.availInputContainer.querySelector('input').click()">Currently Available</label>
+                    <p class="text-xs text-slate-500">Toggle off if the worker is on leave or temporarily unavailable.</p>
+                </div>
+            </div>
+            
+            <div class="pt-6 border-t border-slate-100 flex gap-4">
+                <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-md shadow-sm hover:bg-indigo-700 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                    <i class="fa-solid fa-check me-2"></i> Save Worker
+                </button>
+                <a href="{% url 'workers_list' %}" class="px-6 py-2.5 bg-white text-slate-700 font-bold border border-slate-300 rounded-md shadow-sm hover:bg-slate-50 transition-colors">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- RIGHT COLUMN: Live Preview (~40%) -->
+    <div class="lg:col-span-5 xl:col-span-4">
+        <div class="sticky top-6">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 ms-1"><i class="fa-solid fa-eye me-1"></i> Live Card Preview</h3>
+            
+            <!-- Preview Card (Styled to match how workers look elsewhere) -->
+            <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
+                <div class="p-5 flex items-start gap-4">
+                    <!-- Avatar -->
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shadow-sm shrink-0 transition-colors"
+                         :class="isAvailable ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-500'">
+                        <span x-text="initials"></span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0 pt-1">
+                        <!-- Header / Status -->
+                        <div class="flex items-start justify-between gap-2 mb-1">
+                            <h3 class="font-bold text-slate-800 truncate text-lg" x-text="name || 'Worker Name'"></h3>
+                            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider shrink-0 transition-colors"
+                                  :class="isAvailable ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'">
+                                <span class="w-1.5 h-1.5 rounded-full" :class="isAvailable ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+                                <span x-text="isAvailable ? 'Available' : 'Unavailable'"></span>
+                            </span>
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div class="text-sm text-slate-600 flex items-center gap-2 mb-2">
+                            <i class="fa-solid fa-phone text-slate-400 text-xs"></i> 
+                            <span x-text="phone || '10-digit mobile number'"></span>
+                        </div>
+                        
+                        <!-- Badges -->
+                        <div class="flex flex-wrap gap-2 mt-3">
+                            <span class="inline-flex items-center px-2 py-1 rounded bg-slate-50 border border-slate-200 text-xs font-medium text-slate-600">
+                                <i class="fa-solid fa-building me-1.5 text-slate-400"></i>
+                                <span x-text="departmentName || 'Department'"></span>
+                            </span>
+                            
+                            <span x-show="specialization" class="inline-flex items-center px-2 py-1 rounded bg-indigo-50 border border-indigo-100 text-xs font-medium text-indigo-700">
+                                <i class="fa-solid fa-star me-1.5 text-indigo-400"></i>
+                                <span x-text="specialization"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 bg-indigo-50 rounded-md border border-indigo-100">
+                <p class="text-xs text-indigo-700 flex gap-2">
+                    <i class="fa-solid fa-lightbulb mt-0.5"></i>
+                    <span>This card preview shows how the worker will appear in the <strong>My Team</strong> list and assignment dropdowns.</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('workerPreview', () => ({
+            name: '',
+            phone: '',
+            departmentId: '',
+            departmentName: '',
+            specialization: '',
+            isAvailable: true,
+            
+            specializationChips: [
+                'Pipeline Repair',
+                'Road Patching',
+                'Electrical',
+                'Streetlight Maintenance',
+                'Waste Collection'
+            ],
+            
+            init() {
+                // Initialize state from Django form inputs if they have values (e.g., on edit or validation error)
+                this.$nextTick(() => {
+                    const nameInput = this.$refs.nameInputContainer.querySelector('input');
+                    const phoneInput = this.$refs.phoneInputContainer.querySelector('input');
+                    const deptSelect = this.$refs.deptInputContainer.querySelector('select');
+                    const specInput = this.$refs.specInputContainer.querySelector('input');
+                    const availInput = this.$refs.availInputContainer.querySelector('input[type="checkbox"]');
+                    
+                    if (nameInput) {
+                        this.name = nameInput.value;
+                        nameInput.addEventListener('input', (e) => this.name = e.target.value);
+                    }
+                    
+                    if (phoneInput) {
+                        this.phone = phoneInput.value;
+                        // Prevent non-digits
+                        phoneInput.addEventListener('input', (e) => {
+                            let val = e.target.value.replace(/\D/g, '').substring(0, 10);
+                            e.target.value = val;
+                            this.phone = val;
+                        });
+                    }
+                    
+                    if (deptSelect) {
+                        this.departmentId = deptSelect.value;
+                        this.updateDeptName(deptSelect);
+                        deptSelect.addEventListener('change', (e) => {
+                            this.departmentId = e.target.value;
+                            this.updateDeptName(e.target);
+                        });
+                    }
+                    
+                    if (specInput) {
+                        this.specialization = specInput.value;
+                        specInput.addEventListener('input', (e) => this.specialization = e.target.value);
+                    }
+                    
+                    if (availInput) {
+                        this.isAvailable = availInput.checked;
+                        availInput.addEventListener('change', (e) => this.isAvailable = e.target.checked);
+                    }
+                    
+                    // Form validation before submit
+                    const form = document.getElementById('worker-form');
+                    form.addEventListener('submit', (e) => {
+                        if (!this.phoneIsValid()) {
+                            e.preventDefault();
+                            phoneInput.focus();
+                            phoneInput.reportValidity();
+                        }
+                    });
+                });
+            },
+            
+            updateDeptName(selectElement) {
+                if (selectElement.selectedIndex > 0) {
+                    this.departmentName = selectElement.options[selectElement.selectedIndex].text;
+                } else {
+                    this.departmentName = '';
+                }
+            },
+            
+            setSpecialization(chipValue) {
+                this.specialization = chipValue;
+                const specInput = this.$refs.specInputContainer.querySelector('input');
+                if (specInput) {
+                    specInput.value = chipValue;
+                    // Trigger input event for any other listeners
+                    specInput.dispatchEvent(new Event('input'));
+                }
+            },
+            
+            get initials() {
+                if (!this.name) return '??';
+                const parts = this.name.trim().split(' ').filter(p => p.length > 0);
+                if (parts.length === 0) return '??';
+                if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+                return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+            },
+            
+            phoneIsValid() {
+                return this.phone.length === 10;
+            }
+        }));
+    });
+</script>
+{% endblock %}

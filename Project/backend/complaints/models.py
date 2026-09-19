@@ -38,6 +38,21 @@ class Complaint(models.Model):
     remarks = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    is_overdue = models.BooleanField(default=False)
+    
+    # Citizen Feedback fields
+    citizen_rating = models.IntegerField(null=True, blank=True)
+    citizen_feedback = models.TextField(null=True, blank=True)
+    citizen_confirmed_resolved = models.BooleanField(null=True, blank=True)
+    
+    # Resolution Evidence
+    resolved_image = models.ImageField(upload_to='resolution_evidence/', blank=True, null=True)
+
+    # Worker Assignment (Optional)
+    assigned_worker = models.ForeignKey('departments.Worker', on_delete=models.SET_NULL, null=True, blank=True)
+    expected_completion_date = models.DateField(null=True, blank=True)
+
 
     def __str__(self):
         return f"{self.title} - {self.status}"

@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
-{% block wrapper_overflow %}overflow-hidden{% endblock %}
-{% block main_classes %}p-0 flex flex-col h-full{% endblock %}
-{% block container_classes %}w-full h-full flex-1 flex{% endblock %}
+{% block wrapper_overflow %}overflow-y-auto bg-slate-50{% endblock %}
+{% block main_classes %}p-0 flex flex-col{% endblock %}
+{% block container_classes %}w-full flex-1{% endblock %}
 
 {% block extra_css %}
 <!-- Leaflet CSS -->
@@ -18,100 +18,200 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex flex-col lg:flex-row w-full h-full overflow-hidden relative">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 lg:py-12 w-full">
+    <div class="mb-8">
+        <h2 class="text-2xl lg:text-3xl font-serif font-extrabold text-slate-900 mb-2">Most Active Issues in Your City</h2>
+        <p class="text-slate-600 text-sm lg:text-base">Issues citizens are actively tracking and upvoting, currently being addressed by municipal departments.</p>
+    </div>
+    
+    {% if priority_issues %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for complaint in priority_issues|slice:":6" %}
+        <div class="bg-white rounded-sm shadow-sm border border-slate-200 overflow-hidden flex flex-col group hover:shadow-md transition-shadow">
+            <!-- Image & Badges -->
+            <div class="relative h-48 w-full bg-slate-100 border-b border-slate-200">
+                {% if complaint.image %}
+                    <img src="{{ complaint.image.url }}" alt="Issue image" class="w-full h-full object-cover">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-slate-300">
+                        <i class="fa-solid fa-camera text-4xl"></i>
+                    </div>
+                {% endif %}
+                
+                <!-- Category Badge (Top Left) -->
+                <span class="absolute top-3 left-3 px-2 py-1 bg-white/90 backdrop-blur-sm text-slate-800 text-[10px] font-bold rounded-sm uppercase tracking-wider shadow-sm border border-slate-200/50">
+                    {{ complaint.category }}
+                </span>
+                
+                <!-- Status Badge (Top Right) -->
+                <span class="absolute top-3 right-3 px-2 py-1 text-[10px] font-bold rounded-sm uppercase tracking-wider shadow-sm border
+                    {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}bg-emerald-500 text-white border-emerald-600
+                    {% elif complaint.status == 'In Progress' %}bg-[#0a192f] text-white border-[#0a192f]
+                    {% else %}bg-amber-500 text-white border-amber-600{% endif %}">
+                    {{ complaint.status }}
+                </span>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-5 flex-1 flex flex-col">
+                <h4 class="text-lg font-bold text-slate-900 mb-2 font-serif line-clamp-1" title="{{ complaint.title }}">{{ complaint.title }}</h4>
+                <p class="text-sm text-slate-600 mb-4 line-clamp-2 flex-1">{{ complaint.description|truncatewords:15 }}</p>
+                
+                <div class="flex items-center gap-2 text-xs text-slate-500 mb-5">
+                    <i class="fa-solid fa-location-dot text-slate-400"></i>
+                    <span class="line-clamp-1">{{ complaint.address|default:"Location hidden" }}</span>
+                </div>
+                
+                <!-- Footer Actions -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                    <button class="upvote-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm border border-slate-200 text-xs font-bold transition-colors hover:bg-slate-50 text-slate-700 shadow-sm" data-id="{{ complaint.id }}">
+                        <i class="fa-solid fa-arrow-up text-primary"></i>
+                        <span class="upvote-count">{{ complaint.votes.count }}</span>
+                    </button>
+                    
+                    <a href="{% url 'public_complaint_detail' complaint.id %}" class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-sm border border-primary hover:bg-primary/90 transition-colors shadow-sm">
+                        View Details <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="bg-white rounded-sm shadow-sm border border-slate-200 p-12 text-center max-w-2xl mx-auto">
+        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 text-primary">
+            <i class="fa-solid fa-clipboard-check text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 mb-2">All Clear</h3>
+        <p class="text-slate-500 text-sm">There are currently no active priority issues in the city. Everything is up to date and resolved!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Original Dashboard Split Layout (Map & Sidebar) -->
+<div class="flex flex-col lg:flex-row w-full h-[600px] lg:h-[75vh] min-h-[600px] overflow-hidden relative border-t border-slate-200">
     
     <!-- LEFT: Full Screen Map -->
-    <div class="flex-1 relative h-[50vh] lg:h-full order-2 lg:order-1 border-t lg:border-t-0 lg:border-r border-slate-200 dark:border-slate-800">
+    <div class="flex-1 relative h-[50vh] lg:h-full order-2 lg:order-1 border-t lg:border-t-0 lg:border-r border-slate-200 ">
         <div id="community-map"></div>
         
         <!-- Floating Info Overlay on Map -->
-        <div class="absolute top-4 left-4 z-20 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 max-w-sm hidden md:block">
-            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-1"><i class="fa-solid fa-globe text-primary me-2"></i> Civic Transparency Map</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Live tracker of civic issues reported across the city. Red pins indicate pending issues, blue are in progress, and green are resolved.</p>
+        <div class="absolute top-4 left-4 z-20 bg-white/90 backdrop-blur-md p-4 rounded-sm shadow-lg border border-slate-200 max-w-sm hidden md:block">
+            <h2 class="text-xl font-bold text-slate-800 mb-1"><i class="fa-solid fa-globe text-primary me-2"></i> Civic Transparency Map</h2>
+            <p class="text-xs text-slate-500 mb-3">Live tracker of civic issues reported across the city. Red pins indicate pending issues, blue are in progress, and green are resolved.</p>
+            <a href="{% url 'heatmap' %}" class="inline-flex items-center gap-2 text-xs font-bold text-primary hover:text-indigo-800 transition-colors bg-indigo-50 px-3 py-1.5 rounded-sm border border-indigo-100">
+                <i class="fa-solid fa-fire text-orange-500"></i> View Heatmap
+            </a>
         </div>
     </div>
     
     <!-- RIGHT: Scrolling Sidebar Panel -->
-    <div class="w-full lg:w-[450px] xl:w-[500px] h-full flex flex-col bg-slate-50 dark:bg-slate-950 order-1 lg:order-2 overflow-y-auto custom-scrollbar shadow-inner relative z-20">
+    <div class="w-full lg:w-[450px] xl:w-[500px] h-full flex flex-col bg-slate-50 order-1 lg:order-2 overflow-y-auto custom-scrollbar shadow-inner relative z-20">
         
         <div class="p-6 space-y-8">
             <!-- Mobile Header (Visible only on small screens) -->
-            <div class="md:hidden">
-                <h2 class="text-2xl font-bold text-slate-800 dark:text-white"><i class="fa-solid fa-globe text-primary me-2"></i> Community Map</h2>
+            <div class="md:hidden flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-slate-800 "><i class="fa-solid fa-globe text-primary me-2"></i> Community Map</h2>
+                <a href="{% url 'heatmap' %}" class="text-xs font-bold text-primary bg-indigo-50 px-3 py-1.5 rounded-sm border border-indigo-100">
+                    <i class="fa-solid fa-fire text-orange-500 mr-1"></i> Heatmap
+                </a>
             </div>
             
             <!-- Live KPI Counters -->
             <div class="grid grid-cols-2 gap-4">
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm text-center transform transition-transform hover:-translate-y-1 duration-300">
+                <div class="bg-white rounded-sm p-5 border border-slate-200 shadow-sm text-center transform transition-transform hover:-translate-y-1 duration-300">
                     <p class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Resolved Today</p>
                     <div class="flex items-center justify-center gap-2">
-                        <p class="text-4xl font-extrabold text-slate-900 dark:text-white" x-data="{ count: 0 }" x-init="let t = 142; let c = 0; let s = Math.ceil(t / 20); let i = setInterval(() => { c += s; if(c >= t){ count = t; clearInterval(i); } else { count = c; } }, 40);" x-text="count">0</p>
+                        <p class="text-4xl font-extrabold text-slate-900 " x-data="{ count: 0 }" x-init="let t = 142; let c = 0; let s = Math.ceil(t / 20); let i = setInterval(() => { c += s; if(c >= t){ count = t; clearInterval(i); } else { count = c; } }, 40);" x-text="count">0</p>
                         <i class="fa-solid fa-arrow-trend-up text-green-500"></i>
                     </div>
                 </div>
                 
-                <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm text-center transform transition-transform hover:-translate-y-1 duration-300">
+                <div class="bg-white rounded-sm p-5 border border-slate-200 shadow-sm text-center transform transition-transform hover:-translate-y-1 duration-300">
                     <p class="text-xs font-bold text-primary uppercase tracking-wider mb-2">Resolution Rate</p>
-                    <p class="text-4xl font-extrabold text-slate-900 dark:text-white">{{ resolution_rate }}%</p>
+                    <p class="text-4xl font-extrabold text-slate-900 ">{{ resolution_rate }}%</p>
                 </div>
             </div>
             
-            <!-- Category Chart -->
-            <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
-                <h3 class="font-bold text-slate-800 dark:text-white mb-4 text-sm uppercase tracking-wide">Trending Issues</h3>
-                <div class="relative h-48 w-full">
-                    <canvas id="categoryChart"></canvas>
+
+            
+            <!-- Department Performance -->
+            <div class="bg-white rounded-sm p-5 border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-slate-800 mb-4 text-sm uppercase tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-building-columns text-[#0a192f]"></i> Department Scorecard
+                </h3>
+                <div class="grid grid-cols-1 gap-4">
+                    {% for dept in dept_stats %}
+                    <div class="border border-slate-200 rounded-sm p-4">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                <i class="fa-solid fa-building text-slate-400"></i> {{ dept.name }}
+                            </h4>
+                            <span class="text-xs font-bold {% if dept.rate >= 80 %}text-emerald-600{% elif dept.rate >= 50 %}text-amber-600{% else %}text-[#8b0000]{% endif %}">{{ dept.rate }}% Resolved</span>
+                        </div>
+                        <div class="w-full bg-slate-100 h-1.5 mb-3 rounded-full overflow-hidden">
+                            <div class="h-full w-[{{ dept.rate }}%] {% if dept.rate >= 80 %}bg-emerald-500{% elif dept.rate >= 50 %}bg-amber-500{% else %}bg-[#8b0000]{% endif %}"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500">
+                            <span>{{ dept.resolved }} / {{ dept.total }} Issues</span>
+                            <span>Avg: <span class="font-bold text-slate-700">{{ dept.avg_time }}</span></span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-sm text-slate-500 py-4">No department data available.</div>
+                    {% endfor %}
                 </div>
             </div>
             
-            <div class="h-px w-full bg-slate-200 dark:bg-slate-800 my-2"></div>
+            <div class="h-px w-full bg-slate-200 my-2"></div>
             
             <!-- Public Feed -->
             <div>
-                <h3 class="font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <div class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></div> Live Issue Feed
                 </h3>
                 
                 <div class="space-y-4">
                     {% for complaint in complaints %}
-                    <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm hover:border-primary/50 transition-colors group">
+                    <div class="bg-white rounded-sm p-4 border border-slate-200 shadow-sm hover:border-primary/50 transition-colors group">
                         
                         <!-- Header: Category & Status -->
                         <div class="flex justify-between items-start mb-3">
-                            <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-md">
+                            <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-md">
                                 {{ complaint.category }}
                             </span>
                             
                             {% if complaint.status == 'Resolved' or complaint.status == 'Closed' %}
-                                <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold rounded-md border border-emerald-500/20"><i class="fa-solid fa-check me-1"></i> Resolved</span>
+                                <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 text-xs font-bold rounded-md border border-emerald-500/20"><i class="fa-solid fa-check me-1"></i> Resolved</span>
                             {% elif complaint.status == 'In Progress' %}
-                                <span class="px-2.5 py-1 bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-md border border-blue-500/20"><i class="fa-solid fa-spinner me-1"></i> In Progress</span>
+                                <span class="px-2.5 py-1 bg-blue-500/10 text-blue-600 text-xs font-bold rounded-md border border-blue-500/20"><i class="fa-solid fa-spinner me-1"></i> In Progress</span>
                             {% else %}
-                                <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-bold rounded-md border border-amber-500/20">{{ complaint.status }}</span>
+                                <span class="px-2.5 py-1 bg-amber-500/10 text-amber-600 text-xs font-bold rounded-md border border-amber-500/20">{{ complaint.status }}</span>
                             {% endif %}
                         </div>
                         
                         <!-- Content -->
-                        <h4 class="font-bold text-slate-900 dark:text-white mb-1.5 line-clamp-1">{{ complaint.title }}</h4>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-3 line-clamp-2">{{ complaint.description }}</p>
+                        <h4 class="font-bold text-slate-900 mb-1.5 line-clamp-1">{{ complaint.title }}</h4>
+                        <p class="text-sm text-slate-500 mb-3 line-clamp-2">{{ complaint.description }}</p>
                         
                         <!-- Map Location Context -->
-                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-4 bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                        <div class="flex items-center gap-1.5 text-xs text-slate-400 mb-4 bg-slate-50 p-2 rounded-lg">
                             <i class="fa-solid fa-location-dot text-slate-400"></i>
                             <span class="line-clamp-1 flex-1">{{ complaint.address|default:"Location hidden" }}</span>
                         </div>
                         
                         <!-- Footer Actions -->
-                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                        <div class="pt-3 border-t border-slate-100 flex justify-between items-center">
                             <span class="text-xs font-medium text-slate-400 flex items-center gap-1.5">
                                 <i class="fa-regular fa-clock"></i> {{ complaint.created_at|timesince }} ago
                             </span>
                             
                             <div class="flex gap-2">
-                                <button class="w-7 h-7 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors" title="Share" onclick="navigator.clipboard.writeText(window.location.origin + '/complaint/{{ complaint.id }}'); Toastify({text: 'Link copied!', duration: 2000, style: {background: '#6c5ce7'}}).showToast();">
+                                <button class="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 transition-colors" title="Share" onclick="navigator.clipboard.writeText(window.location.origin + '/complaint/{{ complaint.id }}'); Toastify({text: 'Link copied!', duration: 2000, style: {background: '#6c5ce7'}}).showToast();">
                                     <i class="fa-solid fa-share-nodes text-[10px]"></i>
                                 </button>
-                                <button class="upvote-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700 text-xs font-bold transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300" data-id="{{ complaint.id }}">
+                                <button class="upvote-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-200 text-xs font-bold transition-colors hover:bg-slate-50 :bg-slate-800 text-slate-600 " data-id="{{ complaint.id }}">
                                     <i class="fa-solid fa-arrow-up"></i>
                                     <span class="upvote-count">{{ complaint.votes.count }}</span>
                                 </button>
@@ -120,8 +220,8 @@
                     </div>
                     {% empty %}
                     <div class="py-12 text-center text-slate-500">
-                        <div class="w-16 h-16 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 dark:border-slate-800 shadow-sm">
-                            <i class="fa-solid fa-inbox text-2xl text-slate-300 dark:text-slate-600"></i>
+                        <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-200 shadow-sm">
+                            <i class="fa-solid fa-inbox text-2xl text-slate-300 "></i>
                         </div>
                         <p class="text-sm">No issues have been reported yet.</p>
                     </div>
@@ -197,11 +297,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.status === 'success') {
                     countSpan.textContent = data.upvotes;
                     if (data.action === 'voted') {
-                        this.classList.remove('text-slate-600', 'border-slate-200', 'hover:bg-slate-50', 'dark:text-slate-300', 'dark:border-slate-700', 'dark:hover:bg-slate-800');
-                        this.classList.add('text-primary', 'bg-primary/10', 'border-primary/20', 'dark:bg-primary/20');
+                        this.classList.remove('text-slate-600', 'border-slate-200', 'hover:bg-slate-50', '', '', ':bg-slate-800');
+                        this.classList.add('text-primary', 'bg-primary/10', 'border-primary/20', '');
                     } else {
-                        this.classList.add('text-slate-600', 'border-slate-200', 'hover:bg-slate-50', 'dark:text-slate-300', 'dark:border-slate-700', 'dark:hover:bg-slate-800');
-                        this.classList.remove('text-primary', 'bg-primary/10', 'border-primary/20', 'dark:bg-primary/20');
+                        this.classList.add('text-slate-600', 'border-slate-200', 'hover:bg-slate-50', '', '', ':bg-slate-800');
+                        this.classList.remove('text-primary', 'bg-primary/10', 'border-primary/20', '');
                     }
                 }
             })

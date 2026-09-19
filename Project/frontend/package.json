@@ -1,0 +1,12 @@
+{
+  "name": "smart-civic-issue-frontend",
+  "version": "1.0.0",
+  "description": "Tailwind CSS build setup",
+  "scripts": {
+    "build:css": "tailwindcss -i ./css/input.css -o ./static/css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./css/input.css -o ./static/css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.1"
+  }
+}

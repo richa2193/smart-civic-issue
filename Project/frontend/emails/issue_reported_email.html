@@ -1,0 +1,47 @@
+{% extends 'emails/base_email.html' %}
+
+{% block subject %}We've Received Your Report — Issue #{{ complaint.id }}{% endblock %}
+
+{% block headline %}Thank You for Reporting an Issue{% endblock %}
+
+{% block content %}
+<p>Dear {{ name }},</p>
+
+<p>Thank you for submitting a civic issue report. Your complaint has been formally registered and routed to the appropriate municipal department.</p>
+
+<div style="background-color: #f1f5f9; padding: 20px; border-radius: 4px; border-left: 4px solid #0b3d66; margin: 25px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size: 14px;">
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b; width: 120px;"><strong>Issue ID:</strong></td>
+            <td style="padding-bottom: 8px; font-weight: bold; color: #0b3d66;">#{{ complaint.id }}</td>
+        </tr>
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b;"><strong>Title:</strong></td>
+            <td style="padding-bottom: 8px; color: #334155;">{{ complaint.title }}</td>
+        </tr>
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b;"><strong>Category:</strong></td>
+            <td style="padding-bottom: 8px; color: #334155;">{{ complaint.get_category_display|default:complaint.category }}</td>
+        </tr>
+        <tr>
+            <td style="padding-bottom: 8px; color: #64748b;"><strong>Assigned To:</strong></td>
+            <td style="padding-bottom: 8px; font-weight: bold; color: #8b0000;">{{ complaint.department }}</td>
+        </tr>
+    </table>
+</div>
+
+<p>Our designated officers have been notified. You'll be notified as this issue is updated.</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 30px; margin-bottom: 20px;">
+    <tr>
+        <td align="center">
+            <a href="{{ site_url }}{% url 'complaint_detail' complaint.id %}" style="display: inline-block; padding: 12px 25px; background-color: #0b3d66; color: #ffffff; text-decoration: none; font-weight: bold; border-radius: 3px; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #062846;">
+                Track This Issue
+            </a>
+        </td>
+    </tr>
+</table>
+
+<p style="margin-bottom: 0;">Thank you,<br>
+<strong>CivicSaathi Portal</strong></p>
+{% endblock %}

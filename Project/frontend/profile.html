@@ -33,33 +33,52 @@
 {% block content %}
 <div class="mb-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
     <div class="shrink-0">
-        <h2 class="text-2xl font-bold text-slate-800 dark:text-white">My Profile</h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your personal information.</p>
+        <h2 class="text-2xl font-bold text-slate-800 ">My Profile</h2>
+        <p class="text-slate-500 mt-1 text-sm">Manage your personal information.</p>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
     <div class="lg:col-span-1">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 text-center relative overflow-hidden group hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-sm shadow-sm border border-slate-100 p-8 text-center relative overflow-hidden group hover:shadow-md transition-shadow">
             <div class="w-full h-24 bg-gradient-to-r from-primary to-indigo-500 absolute top-0 left-0 group-hover:scale-105 transition-transform duration-500"></div>
             
-            <div class="w-24 h-24 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white dark:border-slate-800 shadow-md relative z-10 text-3xl font-bold text-primary">
-                {{ user.full_name|default:user.email|make_list|first|upper }}
+            <div class="relative w-24 h-24 mx-auto mb-4 z-10">
+                <div id="avatar-preview" class="w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-white shadow-md text-3xl font-bold text-primary overflow-hidden bg-center bg-cover bg-no-repeat"
+                     {% if user.profile_picture %}style="background-image: url('{{ user.profile_picture.url }}');"{% endif %}>
+                    {% if not user.profile_picture %}
+                        <span id="avatar-initial">{{ user.full_name|default:user.email|make_list|first|upper }}</span>
+                    {% endif %}
+                </div>
+                
+                <label for="profile_picture_input" class="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white border-2 border-white cursor-pointer shadow-sm hover:bg-indigo-700 transition-colors" title="Change Photo">
+                    <i class="fa-solid fa-camera text-sm"></i>
+                </label>
+                <input type="file" form="profile_update_form" name="profile_picture" id="profile_picture_input" accept="image/*" class="hidden" onchange="previewImage(this)">
             </div>
             
-            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-1 relative z-10">{{ user.full_name|default:"Citizen" }}</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 relative z-10">{{ user.email }}</p>
+            {% if user.profile_picture %}
+                <div class="relative z-10 text-center mb-2" id="remove_photo_container">
+                    <label class="text-xs text-red-500 hover:text-red-700 font-medium cursor-pointer" onclick="document.getElementById('avatar-preview').style.backgroundImage='none'; document.getElementById('avatar-preview').innerHTML='<span id=\'avatar-initial\'>{{ user.full_name|default:user.email|make_list|first|upper }}</span>'; this.parentElement.style.display='none'; document.getElementById('profile_picture_input').value='';">
+                        <input type="checkbox" form="profile_update_form" name="remove_photo" value="true" class="hidden" id="remove_photo_input" onclick="event.stopPropagation();">
+                        Remove Photo
+                    </label>
+                </div>
+            {% endif %}
             
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-800/30 uppercase tracking-wider relative z-10">
+            <h3 class="text-xl font-bold text-slate-800 mb-1 relative z-10">{{ user.full_name|default:"Citizen" }}</h3>
+            <p class="text-sm text-slate-500 mb-4 relative z-10">{{ user.email }}</p>
+            
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 uppercase tracking-wider relative z-10">
                 {{ user.role }}
             </span>
             
-            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 text-left relative z-10">
-                <p class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Account Information</p>
+            <div class="mt-8 pt-6 border-t border-slate-100 text-left relative z-10">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Account Information</p>
                 <div class="space-y-3 text-sm">
                     <div class="flex justify-between">
-                        <span class="text-slate-500 dark:text-slate-400">Member Since:</span>
-                        <span class="font-medium text-slate-800 dark:text-slate-200">{{ user.date_joined|date:"M d, Y" }}</span>
+                        <span class="text-slate-500 ">Member Since:</span>
+                        <span class="font-medium text-slate-800 ">{{ user.date_joined|date:"M d, Y" }}</span>
                     </div>
                 </div>
             </div>
@@ -67,17 +86,17 @@
     </div>
     
     <div class="lg:col-span-2">
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
-                <h3 class="font-bold text-slate-800 dark:text-white"><i class="fa-solid fa-user-pen text-primary me-2"></i> Update Profile</h3>
+        <div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 ">
+                <h3 class="font-bold text-slate-800 "><i class="fa-solid fa-user-pen text-primary me-2"></i> Update Profile</h3>
             </div>
             
             <div class="p-6 md:p-8">
-                <form method="POST" class="space-y-5">
+                <form method="POST" class="space-y-5" enctype="multipart/form-data" id="profile_update_form">
                     {% csrf_token %}
                     
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Full Name</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Full Name</label>
                         <div class="tailwind-forms">
                             {{ form.full_name }}
                         </div>
@@ -87,18 +106,18 @@
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Email Address</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Email Address</label>
                         <div class="tailwind-forms">
                             {{ form.email }}
                         </div>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">This email is used for login and notifications.</p>
+                        <p class="text-xs text-slate-500 mt-1">This email is used for login and notifications.</p>
                         {% if form.email.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
                         {% endif %}
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Phone Number (Optional)</label>
+                        <label class="block text-sm font-bold text-slate-700 mb-1">Phone Number (Optional)</label>
                         <div class="tailwind-forms">
                             {{ form.phone }}
                         </div>
@@ -107,7 +126,7 @@
                         {% endif %}
                     </div>
                     
-                    <div class="pt-4 border-t border-slate-100 dark:border-slate-700">
+                    <div class="pt-4 border-t border-slate-100 ">
                         <button type="submit" class="px-6 py-2.5 bg-primary text-white font-bold rounded-lg shadow-sm hover:bg-indigo-700 transition-colors">
                             Save Changes
                         </button>
@@ -116,55 +135,62 @@
             </div>
         </div>
         
-        <!-- Officer Work History (Mockup) -->
+        <!-- Officer Work History -->
         {% if user.role == 'Department Officer' %}
-        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden mt-8">
-            <div class="px-6 py-4 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 dark:text-white"><i class="fa-solid fa-briefcase text-primary me-2"></i> Recent Resolutions</h3>
-                <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-md border border-emerald-100 dark:border-emerald-800/30">Top 10% Officer</span>
+        <div class="bg-white rounded-sm shadow-sm border border-slate-100 overflow-hidden mt-8">
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                <h3 class="font-bold text-slate-800 "><i class="fa-solid fa-briefcase text-primary me-2"></i> Recent Resolutions</h3>
             </div>
             <div class="p-6 md:p-8">
-                <div class="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 space-y-8">
-                    
-                    <!-- Timeline Item 1 -->
+                {% if recent_resolutions %}
+                <div class="relative border-l-2 border-slate-200 ml-3 space-y-6">
+                    {% for res in recent_resolutions %}
                     <div class="relative pl-6">
-                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 ring-4 ring-emerald-50 dark:ring-emerald-900/30"></div>
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Resolved: Massive Pothole on Sector 9 Road</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Today at 10:45 AM &bull; <span class="text-indigo-600 dark:text-indigo-400 font-medium">Ticket #0142</span></p>
-                        <div class="mt-3 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-100 dark:border-slate-700 flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-md bg-slate-200 dark:bg-slate-700 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                <i class="fa-solid fa-image text-slate-400 dark:text-slate-500"></i>
-                            </div>
-                            <div class="text-xs text-slate-600 dark:text-slate-400">
-                                <p class="font-bold dark:text-slate-300">Work Proof Uploaded</p>
-                                <p>SLA Target Met: <span class="text-emerald-600 dark:text-emerald-400">Yes (+4 hrs ahead)</span></p>
-                            </div>
-                        </div>
+                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white ring-4 ring-emerald-50"></div>
+                        <a href="{% url 'complaint_detail' res.id %}" class="text-sm font-bold text-slate-800 hover:text-primary transition-colors block">Resolved: {{ res.title }}</a>
+                        <p class="text-xs text-slate-500 mt-1">{{ res.updated_at|date:"M d, Y \a\t h:i A" }} &bull; <span class="text-indigo-600 font-medium">Ticket #{{ res.id|stringformat:"04d" }}</span></p>
                     </div>
-                    
-                    <!-- Timeline Item 2 -->
-                    <div class="relative pl-6">
-                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 ring-4 ring-emerald-50 dark:ring-emerald-900/30"></div>
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Resolved: Broken Streetlight near Central Park</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Yesterday at 4:20 PM &bull; <span class="text-indigo-600 dark:text-indigo-400 font-medium">Ticket #0138</span></p>
-                        <p class="text-sm text-slate-600 dark:text-slate-400 mt-2 bg-amber-50 dark:bg-amber-900/10 p-3 rounded-lg border border-amber-100 dark:border-amber-900/30 text-amber-800 dark:text-amber-400"><i class="fa-solid fa-star text-amber-500 me-1"></i> Citizen Rating: 5/5</p>
-                    </div>
-                    
-                    <!-- Timeline Item 3 -->
-                    <div class="relative pl-6">
-                        <div class="absolute -left-[9px] top-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white dark:border-slate-800 ring-4 ring-emerald-50 dark:ring-emerald-900/30"></div>
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Resolved: Clogged Drainage in Market Area</p>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Jul 08, 2026 at 9:15 AM &bull; <span class="text-indigo-600 dark:text-indigo-400 font-medium">Ticket #0129</span></p>
-                    </div>
-                    
+                    {% endfor %}
                 </div>
                 
-                <div class="mt-6 text-center">
+                <div class="mt-6 pt-2 text-center">
                     <a href="{% url 'assigned_complaints' %}" class="inline-block text-sm font-bold text-primary hover:text-indigo-700 transition-colors">View All History &rarr;</a>
                 </div>
+                {% else %}
+                <p class="text-sm text-slate-500 text-center py-4">No recent resolutions found.</p>
+                {% endif %}
             </div>
         </div>
         {% endif %}
     </div>
 </div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var file = input.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+            alert('File size must be less than 5MB');
+            input.value = '';
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var preview = document.getElementById('avatar-preview');
+            preview.style.backgroundImage = "url('" + e.target.result + "')";
+            preview.innerHTML = '';
+            
+            var removePhotoContainer = document.getElementById('remove_photo_container');
+            if (removePhotoContainer) {
+                removePhotoContainer.style.display = 'none';
+            }
+            var removeInput = document.getElementById('remove_photo_input');
+            if (removeInput) {
+                removeInput.checked = false;
+            }
+        }
+        reader.readAsDataURL(file);
+    }
+}
+</script>
 {% endblock %}

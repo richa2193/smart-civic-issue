@@ -1,75 +1,79 @@
-<footer class="bg-white border-t border-slate-200 mt-auto">
+{% load static %}
+<footer class="bg-primary text-white border-t-4 border-secondary mt-auto">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
       
-      <!-- Brand -->
+      <!-- Brand & Mission -->
       <div class="lg:col-span-1">
-        <a href="{% url 'home' %}" class="flex items-center gap-2 mb-4">
-            <div class="w-8 h-8 bg-indigo-50 text-primary rounded-lg flex items-center justify-center text-lg">
-                <i class="fa-solid fa-city"></i>
-            </div>
-            <span class="font-black text-xl tracking-tight text-slate-800">
-                Smart<span class="text-primary">Civic</span>
-            </span>
+        <a href="{% url 'home' %}" class="inline-flex items-center justify-center bg-white p-2.5 rounded-lg shadow-md mb-6 hover:shadow-lg transition-shadow border border-slate-200">
+            <img src="{% static 'img/civicsaathi-logo.svg' %}" alt="CivicSaathi" class="h-8 w-auto">
         </a>
-        <p class="text-sm text-slate-500 leading-relaxed mb-6">
-            Your one-stop solution for reporting and resolving civic issues efficiently. Empowering citizens, enabling departments.
+        <p class="text-sm text-slate-300 leading-relaxed mb-6">
+            Official portal for citizens to report, track, and resolve municipal infrastructure issues. A joint initiative for better urban governance.
         </p>
-        <div class="flex gap-3">
-            <a href="#" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-primary transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
-            <a href="#" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-primary transition-colors"><i class="fa-brands fa-twitter"></i></a>
-            <a href="#" class="w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-indigo-50 hover:text-primary transition-colors"><i class="fa-brands fa-instagram"></i></a>
-        </div>
       </div>
 
-      <!-- Links -->
+      <!-- Quick Links -->
       <div>
-        <h4 class="font-bold text-slate-800 mb-4">Quick Links</h4>
+        <h4 class="font-serif font-bold text-white mb-5 uppercase tracking-wider text-sm border-b border-white/20 pb-2">Information</h4>
         <ul class="space-y-3">
-            <li><a href="{% url 'home' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Home</a></li>
-            <li><a href="{% url 'about' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">About Us</a></li>
-            <li><a href="{% url 'contact' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Contact</a></li>
+            <li><a href="{% url 'home' %}" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Home</a></li>
+            <li><a href="{% url 'about' %}" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> About the Corporation</a></li>
+            <li><a href="{% url 'contact' %}" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Contact Directory</a></li>
+            <li><a href="#" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Citizen Charter</a></li>
         </ul>
       </div>
       
-      <!-- Portals -->
+      <!-- Portals & Services -->
       <div>
-        <h4 class="font-bold text-slate-800 mb-4">Portals</h4>
+        <h4 class="font-serif font-bold text-white mb-5 uppercase tracking-wider text-sm border-b border-white/20 pb-2">Online Services</h4>
         <ul class="space-y-3">
-            <li><a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Citizen Login</a></li>
-            <li><a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Officer Portal</a></li>
-            <li><a href="{% url 'login' %}" class="text-sm text-slate-500 hover:text-primary transition-colors">Admin Dashboard</a></li>
+            <li><a href="{% url 'login' %}" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Citizen Login</a></li>
+            <li><a href="{% url 'login' %}" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Officer Portal</a></li>
+            <li><a href="{% url 'login' %}" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> Department Dashboard</a></li>
+            <li><a href="#" class="text-sm text-slate-300 hover:text-white transition-colors flex items-center gap-2"><i class="fa-solid fa-angle-right text-xs"></i> RTI / Grievance Redressal</a></li>
         </ul>
       </div>
 
       <!-- Contact -->
       <div>
-        <h4 class="font-bold text-slate-800 mb-4">Contact</h4>
+        <h4 class="font-serif font-bold text-white mb-5 uppercase tracking-wider text-sm border-b border-white/20 pb-2">Helpdesk & Support</h4>
         <ul class="space-y-4">
             <li class="flex items-start gap-3">
-                <i class="fa-solid fa-location-dot text-primary mt-1"></i>
-                <span class="text-sm text-slate-500">123 Civic Lane, Smart City, 10001</span>
+                <i class="fa-solid fa-location-dot text-slate-400 mt-1"></i>
+                <span class="text-sm text-slate-300">Municipal Corporation Headquarters, Civic Centre</span>
             </li>
             <li class="flex items-start gap-3">
-                <i class="fa-solid fa-envelope text-primary mt-1"></i>
-                <span class="text-sm text-slate-500">support@smartcivic.com</span>
+                <i class="fa-solid fa-envelope text-slate-400 mt-1"></i>
+                <span class="text-sm text-slate-300">support@smartcivic.gov.in</span>
             </li>
             <li class="flex items-start gap-3">
-                <i class="fa-solid fa-phone text-primary mt-1"></i>
-                <span class="text-sm text-slate-500">1-800-SMART-CV</span>
+                <i class="fa-solid fa-phone text-slate-400 mt-1"></i>
+                <div>
+                    <span class="block text-sm text-slate-300 font-bold">1800-111-2222 (Toll Free)</span>
+                    <span class="block text-xs text-slate-400">Available 24x7 for emergencies</span>
+                </div>
             </li>
         </ul>
       </div>
 
     </div>
     
-    <div class="border-t border-slate-100 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-      <p class="text-sm text-slate-400">
-        &copy; {% now "Y" %} Smart Civic. All rights reserved.
-      </p>
-      <div class="flex gap-4">
-        <a href="#" class="text-sm text-slate-400 hover:text-slate-600">Privacy Policy</a>
-        <a href="#" class="text-sm text-slate-400 hover:text-slate-600">Terms of Service</a>
+    <!-- Bottom Footer -->
+    <div class="border-t border-white/20 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="text-center md:text-left">
+          <p class="text-sm text-slate-400 mb-1">
+            &copy; {% now "Y" %} CivicSaathi Municipal Corporation. All rights reserved.
+          </p>
+          <p class="text-xs text-slate-500">
+            This is the official portal of the Municipal Corporation.
+          </p>
+      </div>
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2">
+        <a href="#" class="text-xs text-slate-400 hover:text-white hover:underline transition-colors">Accessibility Statement</a>
+        <a href="#" class="text-xs text-slate-400 hover:text-white hover:underline transition-colors">Privacy Policy</a>
+        <a href="#" class="text-xs text-slate-400 hover:text-white hover:underline transition-colors">Terms of Use</a>
+        <a href="#" class="text-xs text-slate-400 hover:text-white hover:underline transition-colors">Disclaimer</a>
       </div>
     </div>
   </div>

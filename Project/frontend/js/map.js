@@ -111,7 +111,7 @@ function reverseGeocode(lat, lng) {
         .catch(error => {
             console.error("Reverse geocoding failed:", error);
             addressField.value = "";
-            showMapAlert("Failed to fetch address. Please enter it manually.", "danger");
+            showMapAlert("Map temporarily unavailable — you can still submit your report.", "warning");
         })
         .finally(() => {
             // Hide loading spinner

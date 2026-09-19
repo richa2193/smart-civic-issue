@@ -15,11 +15,11 @@ class CustomUserCreationForm(UserCreationForm):
         return user
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.EmailField(widget=forms.EmailInput(attrs={'autofocus': True}))
+    username = forms.CharField(widget=forms.TextInput(attrs={'autofocus': True}))
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['username'].label = 'Email'
+        self.fields['username'].label = 'Email or Username'
         
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)
@@ -28,3 +28,13 @@ class CustomAuthenticationForm(AuthenticationForm):
                 "This account is not verified. Please verify your email first.",
                 code='inactive',
             )
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['full_name', 'email', 'phone', 'profile_picture']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'w-full border border-slate-200 rounded-lg px-4 py-2 mt-1 focus:ring-primary focus:border-primary'}),
+            'email': forms.EmailInput(attrs={'class': 'w-full border border-slate-200 rounded-lg px-4 py-2 mt-1 focus:ring-primary focus:border-primary'}),
+            'phone': forms.TextInput(attrs={'class': 'w-full border border-slate-200 rounded-lg px-4 py-2 mt-1 focus:ring-primary focus:border-primary'}),
+        }

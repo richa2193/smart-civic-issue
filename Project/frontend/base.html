@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+{% load static %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Smart Civic is a modern intelligent platform connecting citizens with municipal departments to report potholes, broken streetlights, or sanitation issues and track their resolution in real-time.">
-    <meta name="keywords" content="smart civic, civic issues, report potholes, municipal departments, city management">
-    <meta property="og:title" content="Smart Civic Issue Reporting">
+    <meta name="description" content="CivicSaathi is a modern intelligent platform connecting citizens with municipal departments to report potholes, broken streetlights, or sanitation issues and track their resolution in real-time.">
+    <meta name="keywords" content="civicsaathi, civic issues, report potholes, municipal departments, city management">
+    <meta property="og:title" content="CivicSaathi Issue Reporting">
     <meta property="og:description" content="Report and track civic issues in your city in real-time.">
     <meta property="og:type" content="website">
     
@@ -15,24 +16,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <title>{% block title %}Smart Civic Issue Reporting{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="{% static 'img/civicsaathi-icon.svg' %}">
+    
+    <title>{% block title %}CivicSaathi — Report. Resolve. Improve.{% endblock %}</title>
     
     <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: '#6c5ce7',
-                        secondary: '#a29bfe',
+                        primary: '#0b3d66', // Navy Blue
+                        secondary: '#8b0000', // Maroon
                         dark: '#1e293b',
                         light: '#f8fafc',
                         card: '#ffffff'
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
                     }
                 }
             }
@@ -50,21 +54,13 @@
     <!-- Toastify for Notifications -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Inter & Merriweather -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:wght@300;400;700&display=swap" rel="stylesheet">
     
     <!-- Custom CSS (Legacy fallback) -->
     <link rel="stylesheet" href="/static/css/style.css">
     
     {% block extra_css %}{% endblock %}
-    <script>
-        // Theme initialization to prevent FOUC
-        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    </script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased" x-data="{ sidebarOpen: false }">
 
@@ -76,7 +72,7 @@
             <div class="relative flex flex-col flex-1 {% block wrapper_overflow %}overflow-y-auto{% endblock %} overflow-x-hidden">
                 {% include 'topbar.html' %}
                 
-                <main class="w-full grow {% block main_classes %}p-8 flex flex-col{% endblock %}">
+                <main class="w-full grow {% block main_classes %}p-4 sm:p-6 lg:p-8 lg:pt-12 flex flex-col{% endblock %}">
                     <div class="{% block container_classes %}w-full flex-1{% endblock %}">
     {% else %}
         <!-- Landing/Auth Layout -->
@@ -141,24 +137,8 @@
             }
         });
     </script>
-    <script>
-        // Dark Mode Logic
-        function setDarkMode(isDark) {
-            if (isDark) {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            }
-        }
-        
-        function toggleDarkMode() {
-            const isDark = document.documentElement.classList.contains('dark');
-            setDarkMode(!isDark);
-        }
-    </script>
     
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

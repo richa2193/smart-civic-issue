@@ -14,7 +14,10 @@ class EmailOrUsernameModelBackend(ModelBackend):
             
         try:
             # Check if the user exists with either username or email
-            user = User.objects.get(Q(username__iexact=username) | Q(email__iexact=username))
+            user = User.objects.filter(Q(username__iexact=username) | Q(email__iexact=username)).first()
+            
+            if not user:
+                return None
             
             # Check the password
             if user.check_password(password):

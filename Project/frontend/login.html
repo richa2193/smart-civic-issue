@@ -2,17 +2,17 @@
 
 {% block content %}
 <div class="flex items-center justify-center min-h-[calc(100vh-140px)] py-12 px-4 sm:px-6 lg:px-8">
-    <div class="w-full max-w-[430px] p-8 sm:p-10 bg-white dark:bg-slate-800 rounded-3xl shadow-[0_10px_40px_rgba(108,92,231,0.08)] border border-slate-100 dark:border-slate-700">
+    <div class="w-full max-w-[430px] p-8 sm:p-10 bg-white rounded-3xl shadow-[0_10px_40px_rgba(108,92,231,0.08)] border border-slate-100 ">
         <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome Back</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Please sign in to your dashboard</p>
+            <h2 class="text-3xl font-bold text-slate-900 mb-2">Welcome Back</h2>
+            <p class="text-sm text-slate-500 ">Please sign in to your dashboard</p>
         </div>
         
         <form method="POST" class="space-y-5">
             {% csrf_token %}
             
             <div>
-                <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">Email or Username</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Email or Username</label>
                 <!-- Django form fields will be injected here. We can style them globally via base.html or style.css -->
                 <div class="tailwind-forms">
                     {{ form.username }}
@@ -24,8 +24,8 @@
             
             <div>
                 <div class="flex justify-between items-center mb-2">
-                    <label class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Password</label>
-                    <a href="{% url 'forgot_password' %}" class="text-xs text-primary hover:text-indigo-700 dark:hover:text-indigo-400 hover:underline">Forgot password?</a>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Password</label>
+                    <a href="{% url 'forgot_password' %}" class="text-xs text-primary hover:text-indigo-700 :text-indigo-400 hover:underline">Forgot password?</a>
                 </div>
                 <div class="tailwind-forms">
                     {{ form.password }}
@@ -41,12 +41,12 @@
             </div>
             {% endif %}
             
-            <button type="submit" class="w-full h-[54px] rounded-xl bg-gradient-to-r from-primary to-indigo-600 text-white font-semibold shadow-lg shadow-primary/30 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 mt-2">
+            <button type="submit" class="w-full h-[54px] rounded-sm bg-gradient-to-r from-primary to-indigo-600 text-white font-semibold shadow-lg shadow-primary/30 hover:-translate-y-0.5 hover:shadow-xl transition-all duration-200 mt-2">
                 Sign In
             </button>
         </form>
         
-        <div class="text-center mt-8 text-sm text-slate-500 dark:text-slate-400">
+        <div class="text-center mt-8 text-sm text-slate-500 ">
             New here?<br>
             <a href="{% url 'register' %}" class="inline-block mt-1 font-bold text-primary hover:text-indigo-700 hover:underline transition-colors">Create account</a>
         </div>

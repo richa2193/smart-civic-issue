@@ -13,7 +13,8 @@ class User(AbstractUser):
     phone = models.CharField(max_length=15, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Citizen')
-    profile_photo = models.ImageField(upload_to='profile_photos/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    department = models.ForeignKey('departments.Department', on_delete=models.SET_NULL, null=True, blank=True)
     is_verified = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, blank=True, null=True)
 
